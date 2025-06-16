@@ -3213,6 +3213,10 @@ mymain(void)
 
     DO_TEST_CAPS_LATEST("devices-acpi-index");
 
+    DO_TEST_CAPS_ARCH_LATEST_FULL("acpi-egm-memory", "aarch64",
+                                  ARG_QEMU_CAPS, QEMU_CAPS_DEVICE_ACPI_EGM_MEMORY,
+                                  ARG_END);
+
     DO_TEST_CAPS_ARCH_LATEST_FULL("hvf-x86_64-q35-headless", "x86_64", ARG_CAPS_VARIANT, "+hvf", ARG_END);
     DO_TEST_CAPS_ARCH_LATEST_FULL("hvf-aarch64-virt-headless", "aarch64", ARG_CAPS_VARIANT, "+hvf", ARG_END);
     /* HVF guests should not work on Linux with KVM */
@@ -3314,7 +3318,9 @@ VIR_TEST_MAIN_PRELOAD(mymain,
                       VIR_TEST_MOCK("domaincaps"),
                       VIR_TEST_MOCK("virrandom"),
                       VIR_TEST_MOCK("qemucpu"),
-                      VIR_TEST_MOCK("virnuma"))
+                      VIR_TEST_MOCK("virnuma"),
+                      VIR_TEST_MOCK("virpci"),
+                      VIR_TEST_MOCK("qemuegm"))
 
 #else
 

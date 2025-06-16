@@ -1,0 +1,47 @@
+LC_ALL=C \
+PATH=/bin \
+HOME=/var/lib/libvirt/qemu/domain--1-egm \
+USER=test \
+LOGNAME=test \
+XDG_DATA_HOME=/var/lib/libvirt/qemu/domain--1-egm/.local/share \
+XDG_CACHE_HOME=/var/lib/libvirt/qemu/domain--1-egm/.cache \
+XDG_CONFIG_HOME=/var/lib/libvirt/qemu/domain--1-egm/.config \
+/usr/bin/qemu-system-aarch64 \
+-name guest=egm,debug-threads=on \
+-S \
+-object '{"qom-type":"secret","id":"masterKey0","format":"raw","file":"/var/lib/libvirt/qemu/domain--1-egm/master-key.aes"}' \
+-machine virt,usb=off,gic-version=3,dump-guest-core=off,acpi=off \
+-accel kvm \
+-cpu host \
+-m size=524288k,maxmem=524288k \
+-overcommit mem-lock=off \
+-smp 4,sockets=2,dies=1,clusters=1,cores=2,threads=1 \
+-object '{"qom-type":"memory-backend-file","id":"memegm0","mem-path":"/dev/egm4","share":true,"size":268435456}' \
+-object acpi-egm-memory,id=egm0,pci-dev=ua-hostdev0,node=0 \
+-object acpi-egm-memory,id=egm1,pci-dev=ua-hostdev1,node=0 \
+-object '{"qom-type":"memory-backend-file","id":"memegm1","mem-path":"/dev/egm5","share":true,"size":268435456}' \
+-object acpi-egm-memory,id=egm2,pci-dev=ua-hostdev2,node=1 \
+-object acpi-egm-memory,id=egm3,pci-dev=ua-hostdev3,node=1 \
+-numa node,nodeid=0,cpus=0-1,memdev=memegm0 \
+-numa node,nodeid=1,cpus=2-3,memdev=memegm1 \
+-uuid 00010203-0405-4607-8809-0a0b0c0d0e0f \
+-display none \
+-no-user-config \
+-nodefaults \
+-chardev socket,id=charmonitor,fd=1729,server=on,wait=off \
+-mon chardev=charmonitor,id=monitor,mode=control \
+-rtc base=utc \
+-no-shutdown \
+-boot strict=on \
+-device '{"driver":"pcie-root-port","port":8,"chassis":1,"id":"pci.1","bus":"pcie.0","multifunction":true,"addr":"0x1"}' \
+-device '{"driver":"pcie-root-port","port":9,"chassis":2,"id":"pci.2","bus":"pcie.0","addr":"0x1.0x1"}' \
+-device '{"driver":"pcie-root-port","port":10,"chassis":3,"id":"pci.3","bus":"pcie.0","addr":"0x2"}' \
+-device '{"driver":"pcie-root-port","port":11,"chassis":4,"id":"pci.4","bus":"pcie.0","addr":"0x3"}' \
+-device '{"driver":"pcie-root-port","port":12,"chassis":5,"id":"pci.5","bus":"pcie.0","addr":"0x4"}' \
+-audiodev '{"id":"audio1","driver":"none"}' \
+-device '{"driver":"vfio-pci","host":"0000:01:00.0","id":"ua-hostdev0","bus":"pci.1","addr":"0x0"}' \
+-device '{"driver":"vfio-pci","host":"0000:02:00.0","id":"ua-hostdev1","bus":"pci.3","addr":"0x0"}' \
+-device '{"driver":"vfio-pci","host":"0000:03:00.0","id":"ua-hostdev2","bus":"pci.4","addr":"0x0"}' \
+-device '{"driver":"vfio-pci","host":"0000:04:00.0","id":"ua-hostdev3","bus":"pci.5","addr":"0x0"}' \
+-sandbox on,obsolete=deny,elevateprivileges=deny,spawn=deny,resourcecontrol=deny \
+-msg timestamp=on
