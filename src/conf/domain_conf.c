@@ -8786,8 +8786,11 @@ virDomainDefGetMemoryInitial(const virDomainDef *def)
     size_t i;
     unsigned long long ret = def->mem.total_memory;
 
-    for (i = 0; i < def->nmems; i++)
+    for (i = 0; i < def->nmems; i++) {
+        if (def->mems[i]->model == VIR_DOMAIN_MEMORY_MODEL_EGM)
+            continue;
         ret -= def->mems[i]->size;
+    }
 
     return ret;
 }
