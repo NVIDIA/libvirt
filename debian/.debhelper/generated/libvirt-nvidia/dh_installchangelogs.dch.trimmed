@@ -1,0 +1,6 @@
+libvirt (11.8.0-nvidia.1001.1) noble; urgency=medium
+
+  * NVIDIA fork of libvirt with Provides/Conflicts/Replaces 
+    for standard libvirt packages
+
+ -- Nathan Chen <nathanc@nvidia.com>  Thu, 25 Sep 2025 14:11:42 +0800

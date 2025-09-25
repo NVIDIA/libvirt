@@ -1,0 +1,84 @@
+#!/usr/bin/make -f
+
+DH_VERBOSE := 1
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DEB_CFLAGS_MAINT_APPEND = -Wall -Wextra
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
+
+# Get the proper multiarch libdir
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+%:
+	dh $@ --buildsystem=meson
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		-Ddriver_qemu=enabled \
+		-Ddriver_lxc=enabled \
+		-Ddriver_vbox=disabled \
+		-Ddriver_libxl=disabled \
+		-Dstorage_fs=enabled \
+		-Dstorage_lvm=enabled \
+		-Dstorage_iscsi=enabled \
+		-Dstorage_scsi=enabled \
+		-Dstorage_mpath=enabled \
+		-Dstorage_disk=enabled \
+		-Dstorage_rbd=disabled \
+		-Dstorage_gluster=disabled \
+		-Dstorage_zfs=disabled \
+		-Dsasl=enabled \
+		-Dpolkit=enabled \
+		-Dapparmor=enabled \
+		-Dsecdriver_apparmor=enabled \
+		-Dcapng=enabled \
+		-Dnumactl=enabled \
+		-Dnls=enabled \
+		-Dremote_default_mode=legacy \
+		-Dqemu_user=libvirt-qemu \
+		-Dqemu_group=kvm \
+		-Ddocs=disabled \
+		-Dtests=disabled \
+		--prefix=/usr \
+		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH) \
+		--sysconfdir=/etc \
+		--localstatedir=/var
+
+# Let dh_auto_build handle Meson/Ninja automatically
+override_dh_auto_build:
+	dh_auto_build
+
+override_dh_auto_install:
+	dh_auto_install
+	# Create required directories
+	mkdir -p debian/tmp/var/lib/libvirt/images
+	mkdir -p debian/tmp/var/lib/libvirt/boot
+	mkdir -p debian/tmp/var/lib/libvirt/filesystems
+	mkdir -p debian/tmp/var/log/libvirt/qemu
+	mkdir -p debian/tmp/var/log/libvirt/lxc
+	mkdir -p debian/tmp/etc/libvirt/qemu
+	mkdir -p debian/tmp/etc/libvirt/lxc
+	mkdir -p debian/tmp/etc/libvirt/nwfilter
+	# Fix systemd service file locations for Debian
+	if [ -d debian/tmp/usr/lib/systemd ]; then \
+		mkdir -p debian/tmp/lib/systemd; \
+		cp -r debian/tmp/usr/lib/systemd/* debian/tmp/lib/systemd/; \
+	fi
+	# Set proper permissions
+	chmod 755 debian/tmp/var/lib/libvirt
+	chmod 755 debian/tmp/var/log/libvirt
+
+override_dh_auto_test:
+	# Skip tests for faster PPA builds
+	@echo "Skipping tests for PPA package build"
+
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -rf debian/tmp
+
+override_dh_strip:
+	# Be conservative with stripping for debugging
+	dh_strip --exclude=firmware
+
+# Add version info for PPA
+override_dh_gencontrol:
+	dh_gencontrol -- -v$(shell dpkg-parsechangelog -S Version)~ppa$(shell date +%Y%m%d%H%M%S)

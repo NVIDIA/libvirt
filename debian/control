@@ -1,0 +1,84 @@
+Source: libvirt
+Maintainer: dgx-dev <dgx-dev@nvidia.com>
+Section: misc
+Priority: optional
+Standards-Version: 4.6.2
+Build-Depends: debhelper-compat (= 13),
+ bash-completion,
+ dh-apparmor,
+ iptables,
+ kmod,
+ libacl1-dev,
+ libapparmor-dev (>= 3.0.0),
+ libattr1-dev,
+ libaudit-dev,
+ libblkid-dev,
+ libc6-dev (>= 2.31-14~),
+ libcap-ng-dev,
+ libcurl4-gnutls-dev,
+ libdevmapper-dev,
+ libfuse3-dev,
+ libglib2.0-dev,
+ libglusterfs-dev,
+ libgnutls28-dev,
+ libiscsi-dev,
+ libnl-3-dev,
+ libnl-route-3-dev,
+ libnuma-dev,
+ libparted-dev,
+ libpcap0.8-dev,
+ libpciaccess-dev,
+ librados-dev,
+ librbd-dev,
+ libreadline-dev,
+ libsanlock-dev,
+ libsasl2-dev,
+ libselinux1-dev,
+ libssh-dev,
+ libtasn1-6-dev,
+ libtirpc-dev,
+ libudev-dev,
+ libxml2-dev,
+ libxml2-utils,
+ libyajl-dev,
+ libzfslinux-dev,
+ lvm2,
+ meson,
+ mount,
+ po-debconf,
+ python3-docutils,
+ python3:native,
+ qemu-utils,
+ systemtap-sdt-dev,
+ xsltproc
+
+Package: libvirt-nvidia
+Depends: ${misc:Depends},
+ ${shlibs:Depends},
+ adduser,
+ dnsmasq-base,
+ iptables,
+ systemd
+Provides: libvirt0,
+ libvirt-daemon,
+ libvirt-clients,
+ libvirt-daemon-driver-qemu,
+ libvirt-daemon-system
+Conflicts: libvirt0,
+ libvirt-daemon,
+ libvirt-clients,
+ libvirt-daemon-driver-qemu,
+ libvirt-daemon-system
+Replaces: libvirt0,
+ libvirt-daemon,
+ libvirt-clients,
+ libvirt-daemon-driver-qemu,
+ libvirt-daemon-system
+Recommends: qemu-efi-aarch64,
+ qemu-nvidia
+Architecture: arm64
+Description: NVIDIA's libvirt fork - virtualization management toolkit
+ NVIDIA's libvirt fork supporting AArch64 system emulation with KVM acceleration.
+ .
+ This package provides and replaces standard libvirt packages to avoid conflicts.
+ Includes the libvirt library, daemon, client tools, and QEMU driver.
