@@ -99,6 +99,7 @@ chDomainAttachDeviceLive(virCHDriver *driver,
     case VIR_DOMAIN_DEVICE_AUDIO:
     case VIR_DOMAIN_DEVICE_CRYPTO:
     case VIR_DOMAIN_DEVICE_PSTORE:
+    case VIR_DOMAIN_DEVICE_EGM:
     case VIR_DOMAIN_DEVICE_LAST:
     default:
         virReportError(VIR_ERR_OPERATION_UNSUPPORTED,
@@ -253,6 +254,7 @@ chDomainRemoveDevice(virDomainObj *vm,
     case VIR_DOMAIN_DEVICE_AUDIO:
     case VIR_DOMAIN_DEVICE_CRYPTO:
     case VIR_DOMAIN_DEVICE_PSTORE:
+    case VIR_DOMAIN_DEVICE_EGM:
     case VIR_DOMAIN_DEVICE_LAST:
     case VIR_DOMAIN_DEVICE_NONE:
     default:
@@ -310,6 +312,7 @@ chDomainDetachDeviceLive(virCHDriver *driver,
     case VIR_DOMAIN_DEVICE_AUDIO:
     case VIR_DOMAIN_DEVICE_CRYPTO:
     case VIR_DOMAIN_DEVICE_PSTORE:
+    case VIR_DOMAIN_DEVICE_EGM:
     case VIR_DOMAIN_DEVICE_LAST:
     case VIR_DOMAIN_DEVICE_NONE:
     default:
