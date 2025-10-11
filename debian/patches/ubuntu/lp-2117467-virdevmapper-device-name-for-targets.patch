@@ -1,0 +1,70 @@
+From bf8c7af771f1e2de24b28c2d04b6113796937f7f Mon Sep 17 00:00:00 2001
+From: Bhavin Gandhi <bhavin192@geeksocket.in>
+Date: Thu, 3 Jul 2025 00:39:33 +0530
+Subject: [PATCH] virdevmapper: Always use device name for finding targets
+
+DM_TABLE_DEPS expects a device name in dm_ioctl.name. In one of the
+cases, full path of the device was getting returned causing the ioctl
+call to fail with `ENXIO (No such device or address)`.
+
+Also rename the function and variable names to better reflect that we
+are dealing with DM device names and not paths.
+
+This got introduced in 22494556542c676d1b9e7f1c1f2ea13ac17e1e3e
+Resolves: https://gitlab.com/libvirt/libvirt/-/issues/790
+
+Reviewed-by: Daniel P. Berrangé <berrange@redhat.com>
+Signed-off-by: Bhavin Gandhi <bhavin192@geeksocket.in>
+
+Origin: upstream, https://gitlab.com/libvirt/libvirt/-/commit/bf8c7af771
+Bug-Ubuntu: https://bugs.launchpad.net/libvirt/+bug/2117467
+Last-Update: 2024-07-22
+
+---
+ src/util/virdevmapper.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/src/util/virdevmapper.c b/src/util/virdevmapper.c
+index d0eae671abc..42c86d89cfe 100644
+--- a/src/util/virdevmapper.c
++++ b/src/util/virdevmapper.c
+@@ -164,7 +164,7 @@ virDMOpen(void)
+ 
+ 
+ static char *
+-virDMSanitizepath(const char *path)
++virDMGetDeviceName(const char *path)
+ {
+     g_autofree char *dmDirPath = NULL;
+     struct dirent *ent = NULL;
+@@ -205,7 +205,7 @@ virDMSanitizepath(const char *path)
+ 
+         if (stat(tmp, &sb[1]) == 0 &&
+             sb[0].st_rdev == sb[1].st_rdev) {
+-            return g_steal_pointer(&tmp);
++            return g_strdup(ent->d_name);
+         }
+     }
+ 
+@@ -219,7 +219,7 @@ virDevMapperGetTargetsImpl(int controlFD,
+                            GSList **devPaths,
+                            unsigned int ttl)
+ {
+-    g_autofree char *sanitizedPath = NULL;
++    g_autofree char *deviceName = NULL;
+     g_autofree char *buf = NULL;
+     struct dm_ioctl dm = { 0 };
+     struct dm_target_deps *deps = NULL;
+@@ -233,10 +233,10 @@ virDevMapperGetTargetsImpl(int controlFD,
+     if (!virIsDevMapperDevice(path))
+         return 0;
+ 
+-    if (!(sanitizedPath = virDMSanitizepath(path)))
++    if (!(deviceName = virDMGetDeviceName(path)))
+         return 0;
+ 
+-    if (virStrcpy(dm.name, sanitizedPath, DM_NAME_LEN) < 0) {
++    if (virStrcpy(dm.name, deviceName, DM_NAME_LEN) < 0) {
+         virReportError(VIR_ERR_OPERATION_UNSUPPORTED, "%s",
+                        _("Resolved device mapper name too long"));
+         return -1;

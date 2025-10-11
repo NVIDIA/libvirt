@@ -1,0 +1,104 @@
+From: Jiri Denemark <jdenemar@redhat.com>
+Date: Wed, 17 Apr 2024 14:28:24 +0200
+Subject: qemu: Change return type of qemuDomainFixupCPUs to void
+
+The function never fails.
+
+Signed-off-by: Jiri Denemark <jdenemar@redhat.com>
+Reviewed-by: Peter Krempa <pkrempa@redhat.com>
+
+Origin: https://gitlab.com/libvirt/libvirt/-/commit/6eb4c6ad209559e54908b9553b5e8d48be56bebf
+Bug-RHEL: https://issues.redhat.com/browse/RHEL-30622
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/libvirt/+bug/2083986
+---
+ src/qemu/qemu_domain.c  | 12 ++++--------
+ src/qemu/qemu_domain.h  |  2 +-
+ src/qemu/qemu_process.c |  8 +++-----
+ 3 files changed, 8 insertions(+), 14 deletions(-)
+
+diff --git a/src/qemu/qemu_domain.c b/src/qemu/qemu_domain.c
+index 8c05067..ac4c692 100644
+--- a/src/qemu/qemu_domain.c
++++ b/src/qemu/qemu_domain.c
+@@ -10932,29 +10932,27 @@ qemuDomainUpdateCPU(virDomainObj *vm,
+  *
+  * This function can only be used on an active domain or when restoring a
+  * domain which was running.
+- *
+- * Returns 0 on success, -1 on error.
+  */
+-int
++void
+ qemuDomainFixupCPUs(virDomainObj *vm,
+                     virCPUDef **origCPU)
+ {
+     virArch arch = vm->def->os.arch;
+ 
+     if (!ARCH_IS_X86(arch))
+-        return 0;
++        return;
+ 
+     if (!vm->def->cpu ||
+         vm->def->cpu->mode != VIR_CPU_MODE_CUSTOM ||
+         !vm->def->cpu->model)
+-        return 0;
++        return;
+ 
+     /* Missing origCPU means QEMU created exactly the same virtual CPU which
+      * we asked for or libvirt was too old to mess up the translation from
+      * host-model.
+      */
+     if (!*origCPU)
+-        return 0;
++        return;
+ 
+     if (virCPUDefFindFeature(vm->def->cpu, "cmt")) {
+         g_autoptr(virCPUDef) fixedCPU = virCPUDefCopyWithoutModel(vm->def->cpu);
+@@ -10975,8 +10973,6 @@ qemuDomainFixupCPUs(virDomainObj *vm,
+         virCPUDefFree(*origCPU);
+         *origCPU = g_steal_pointer(&fixedOrig);
+     }
+-
+-    return 0;
+ }
+ 
+ 
+diff --git a/src/qemu/qemu_domain.h b/src/qemu/qemu_domain.h
+index 4da31cc..e1bc4d8 100644
+--- a/src/qemu/qemu_domain.h
++++ b/src/qemu/qemu_domain.h
+@@ -979,7 +979,7 @@ qemuDomainUpdateCPU(virDomainObj *vm,
+                     virCPUDef *cpu,
+                     virCPUDef **origCPU);
+ 
+-int
++void
+ qemuDomainFixupCPUs(virDomainObj *vm,
+                     virCPUDef **origCPU);
+ 
+diff --git a/src/qemu/qemu_process.c b/src/qemu/qemu_process.c
+index 1dd173d..7bb797c 100644
+--- a/src/qemu/qemu_process.c
++++ b/src/qemu/qemu_process.c
+@@ -8216,9 +8216,8 @@ qemuProcessStartWithMemoryState(virConnectPtr conn,
+     /* No cookie means libvirt which saved the domain was too old to mess up
+      * the CPU definitions.
+      */
+-    if (cookie &&
+-        qemuDomainFixupCPUs(vm, &cookie->cpu) < 0)
+-        return -1;
++    if (cookie)
++        qemuDomainFixupCPUs(vm, &cookie->cpu);
+ 
+     if (cookie && !cookie->slirpHelper)
+         priv->disableSlirp = true;
+@@ -8923,8 +8922,7 @@ qemuProcessRefreshCPU(virQEMUDriver *driver,
+          * case the host-model is known to not contain features which QEMU
+          * doesn't know about.
+          */
+-        if (qemuDomainFixupCPUs(vm, &priv->origCPU) < 0)
+-            return -1;
++        qemuDomainFixupCPUs(vm, &priv->origCPU);
+     }
+ 
+     return 0;
