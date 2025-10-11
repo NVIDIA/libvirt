@@ -13,3 +13,4 @@ var/lib/libvirt/qemu
 var/lib/libvirt/sanlock
 var/log/libvirt/lxc
 var/log/libvirt/qemu
+var/lib/libvirt/secrets

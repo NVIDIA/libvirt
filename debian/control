@@ -47,7 +47,7 @@ Build-Depends:
  libxen-dev [amd64 arm64 armhf],
  libxml2-dev,
  libxml2-utils,
- libyajl-dev [linux-any],
+ libjson-c-dev,
  libzfslinux-dev [linux-amd64 linux-arm64 linux-armhf linux-i386 linux-ppc64el linux-s390x],
  lvm2 [linux-any],
  meson,
