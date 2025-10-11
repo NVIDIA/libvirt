@@ -1,3 +1,10 @@
+libvirt (12.4.0+nvidia-unstable1-1) noble; urgency=medium
+
+  * Import basic packaging from Noble.
+  * Use NVIDIA libvirt.
+
+ -- Nathan Chen <nathanc@nvidia.com>  Wed, 03 Jun 2026 11:52:40 +0000
+
 libvirt (10.0.0-2ubuntu8.9) noble; urgency=medium
 
   [ Bhavin Gandhi ]

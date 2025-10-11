@@ -15,3 +15,8 @@ usr/lib/firewalld/zones/libvirt.xml
 usr/share/polkit-1/actions/org.libvirt.api.policy
 usr/share/polkit-1/actions/org.libvirt.unix.policy
 usr/share/polkit-1/rules.d/60-libvirt.rules
+etc/ssh/ssh_config.d/30-libvirt-ssh-proxy.conf
+etc/libvirt/secret.conf
+usr/lib/systemd/system/virt-secret-init-encryption.service
+usr/share/augeas/lenses/libvirt_secrets.aug
+usr/share/augeas/lenses/tests/test_libvirt_secrets.aug
