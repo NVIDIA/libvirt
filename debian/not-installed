@@ -1,3 +1,4 @@
+# Existing entries
 # Drop these once we start shipping split daemons
 etc/apparmor.d/usr.sbin.virtqemud
 etc/apparmor.d/usr.sbin.virtxend
@@ -114,3 +115,45 @@ usr/share/man/man8/virtsecretd.8
 usr/share/man/man8/virtstoraged.8
 usr/share/man/man8/virtvboxd.8
 usr/share/man/man8/virtxend.8
+
+# Newly ignored files (from dh_missing warnings)
+etc/libvirt/network.conf
+etc/ssh/ssh_config.d/30-libvirt-ssh-proxy.conf
+usr/lib/libvirt/libvirt-ssh-proxy
+usr/lib/sysusers.d/libvirt-login-shell.conf
+usr/lib/sysusers.d/libvirt-qemu.conf
+usr/lib/sysusers.d/libvirt.conf
+usr/share/augeas/lenses/libvirtd_network.aug
+usr/share/augeas/lenses/tests/test_libvirtd_network.aug
+usr/share/libvirt/cpu_map/arm_Ampere-1.xml
+usr/share/libvirt/cpu_map/arm_Ampere-1a.xml
+usr/share/libvirt/cpu_map/ppc64_POWER11.xml
+usr/share/libvirt/cpu_map/x86_486-v1.xml
+usr/share/libvirt/cpu_map/x86_Broadwell-v1.xml
+usr/share/libvirt/cpu_map/x86_Broadwell-v2.xml
+usr/share/libvirt/cpu_map/x86_Broadwell-v3.xml
+usr/share/libvirt/cpu_map/x86_Broadwell-v4.xml
+usr/share/libvirt/cpu_map/x86_Cascadelake-Server-v1.xml
+usr/share/libvirt/cpu_map/x86_Cascadelake-Server-v2.xml
+usr/share/libvirt/cpu_map/x86_Cascadelake-Server-v3.xml
+usr/share/libvirt/cpu_map/x86_Cascadelake-Server-v4.xml
+usr/share/libvirt/cpu_map/x86_Cascadelake-Server-v5.xml
+usr/share/libvirt/cpu_map/x86_Conroe-v1.xml
+usr/share/libvirt/cpu_map/x86_Cooperlake-v1.xml
+usr/share/libvirt/cpu_map/x86_Cooperlake-v2.xml
+usr/share/libvirt/cpu_map/x86_Denverton-v1.xml
+usr/share/libvirt/cpu_map/x86_Denverton-v2.xml
+usr/share/libvirt/cpu_map/x86_Denverton-v3.xml
+usr/share/libvirt/cpu_map/x86_Denverton.xml
+usr/share/libvirt/cpu_map/x86_Dhyana-v1.xml
+usr/share/libvirt/cpu_map/x86_Dhyana-v2.xml
+usr/share/libvirt/cpu_map/x86_EPYC-Genoa-v1.xml
+usr/share/libvirt/cpu_map/x86_EPYC-Milan-v1.xml
+usr/share/libvirt/cpu_map/x86_EPYC-Milan-v2.xml
+usr/share/libvirt/cpu_map/x86_EPYC-Rome-v1.xml
+usr/share/libvirt/cpu_map/x86_EPYC-Rome-v2.xml
+usr/share/libvirt/cpu_map/x86_EPYC-Rome-v3.xml
+usr/share/libvirt/cpu_map/x86_EPYC-Rome-v4.xml
+usr/share/libvirt/cpu_map/x86_EPYC-v1.xml
+usr/share/libvirt/cpu_map/x86_EPYC-v2.xml
+usr/share/libvirt/cpu

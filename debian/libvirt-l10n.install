@@ -45,3 +45,6 @@ usr/share/locale/uk/LC_MESSAGES/libvirt.mo
 usr/share/locale/vi/LC_MESSAGES/libvirt.mo
 usr/share/locale/zh_CN/LC_MESSAGES/libvirt.mo
 usr/share/locale/zh_TW/LC_MESSAGES/libvirt.mo
+
+usr/share/locale/ar/LC_MESSAGES/libvirt.mo
+usr/share/locale/zh_TW/LC_MESSAGES/libvirt.mo

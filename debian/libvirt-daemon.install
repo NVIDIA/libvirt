@@ -12,7 +12,6 @@ usr/lib/${DEB_HOST_MULTIARCH}/libvirt/storage-backend/libvirt_storage_backend_is
 usr/lib/${DEB_HOST_MULTIARCH}/libvirt/storage-backend/libvirt_storage_backend_logical.so
 usr/lib/${DEB_HOST_MULTIARCH}/libvirt/storage-backend/libvirt_storage_backend_mpath.so
 usr/lib/${DEB_HOST_MULTIARCH}/libvirt/storage-backend/libvirt_storage_backend_scsi.so
-usr/lib/${DEB_HOST_MULTIARCH}/libvirt/storage-file/libvirt_storage_file_fs.so
 usr/lib/libvirt/libvirt-guests.sh
 usr/lib/libvirt/libvirt_iohelper
 usr/lib/libvirt/libvirt_leaseshelper
@@ -34,3 +33,7 @@ usr/share/man/man8/libvirtd.8
 usr/share/man/man8/virt-ssh-helper.8
 usr/share/man/man8/virtlockd.8
 usr/share/man/man8/virtlogd.8
+
+usr/lib/sysusers.d/libvirt-qemu.conf
+usr/lib/sysusers.d/libvirt.conf
+usr/lib/libvirt/libvirt-ssh-proxy

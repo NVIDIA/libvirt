@@ -48,7 +48,6 @@ ifeq ($(DEB_HOST_ARCH_OS), linux)
     WITH_INTERFACE            = -Ddriver_interface=enabled
     WITH_SECRETS              = -Ddriver_secrets=enabled
     WITH_OPENVZ               = -Ddriver_openvz=enabled
-    WITH_YAJL                 = -Dyajl=enabled
     WITH_POLKIT               = -Dpolkit=enabled
     WITH_SANLOCK              = -Dsanlock=enabled
     WITH_INIT_SCRIPT          = -Dinit_script=systemd
@@ -86,7 +85,6 @@ else
     WITH_SECRETS              = -Ddriver_secrets=disabled
     WITH_OPENVZ               = -Ddriver_openvz=disabled
     WITH_POLKIT               = -Dpolkit=disabled
-    WITH_YAJL                 = -Dyajl=disabled
     WITH_SANLOCK              = -Dsanlock=disabled
     WITH_INIT_SCRIPT          = -Dinit_script=none
     WITH_FIREWALLD            = -Dfirewalld=disabled
@@ -174,7 +172,6 @@ DEB_CONFIGURE_EXTRA_ARGS := \
     -Dreadline=enabled \
     -Dbash_completion=enabled \
     -Dbash_completion_dir=/usr/share/bash-completion/completions \
-    $(WITH_YAJL) \
     $(WITH_POLKIT) \
     $(WITH_SANLOCK) \
     $(WITH_UDEV) \
