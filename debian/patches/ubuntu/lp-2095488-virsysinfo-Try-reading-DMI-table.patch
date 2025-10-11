@@ -1,0 +1,34 @@
+From: Brett Holman <brett.holman@canonical.com>
+Date: Tue, 26 Mar 2024 14:38:50 -0500
+Subject: [PATCH] virsysinfo: Try reading DMI table
+
+Add DMI support for risc-v and mips. Attempt to read dmidecode and
+fall back to old behavior if that fails.
+
+The SMBIOS specification[1] officially supports both RISC-V and LoongArch.
+Some mips-based Loongson-3 processors also have SMBIOS.
+
+[1] https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.7.0.pdf
+
+Signed-off-by: Brett Holman <brett.holman@canonical.com>
+Reviewed-by: Kristina Hanicova <khanicov@redhat.com>
+Reviewed-by: Jim Fehlig <jfehlig@suse.com>
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/2095488
+Origin: upstream, https://gitlab.com/libvirt/libvirt/-/commit/b902cfece0db71c3421b0bfe0e05d1dbe7890c31
+---
+ src/util/virsysinfo.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/src/util/virsysinfo.c
++++ b/src/util/virsysinfo.c
+@@ -1248,7 +1248,9 @@
+ #elif !defined(WIN32) && \
+     (defined(__x86_64__) || \
+      defined(__i386__) || \
+-     defined(__amd64__))
++     defined(__amd64__) || \
++     defined(__riscv__) || \
++     defined(__mips__))
+     return virSysinfoReadDMI();
+ #else /* WIN32 || not supported arch */
+     /*

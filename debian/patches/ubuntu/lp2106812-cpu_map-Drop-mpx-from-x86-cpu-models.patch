@@ -1,0 +1,913 @@
+Author: Tim Wiederhake <twiederh@redhat.com>
+Date: Wed, 23 Apr 2025 03:15:53 +0200
+Subject: [PATCH] cpu_map: Drop 'mpx' from x86 cpu models
+Origin: backport, https://gitlab.com/libvirt/libvirt/-/commit/fa5459517848f333743c771e90eb01faeced3dae
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/2106812
+Applied-Upstream: 10.4
+
+The mpx feature was removed from the corresponding qemu cpu models.
+With mpx in the libvirt cpu models, libvirt believes the feature
+to be implicitly enabled when creating qemu VMs, while in fact it is
+disabled.
+
+This became an issue when commit 94eacd5a introduced new vmx-*
+features, of which some are dependent on mpx (see "feature_dependencies"
+table in qemu target/i386/cpu.c), e.g. vmx-exit-clear-bndcfgs and
+vmx-entry-load-bndcfgs. These features cannot be enabled by qemu
+without also mpx being enabled, leading to the error message
+
+    error: Failed to create domain from testdomain.xml
+    error: operation failed: guest CPU doesn't match
+    specification: missing features: mpx,vmx-exit-clear-bndcfgs,
+    vmx-entry-load-bndcfgs
+
+when trying to create a VM with a "host-model" cpu on a host that
+does support mpx and the mentioned vmx-* features:
+
+    <domain>
+      ...
+      <cpu mode='host-model' check='full' />
+      ...
+    </domain>
+
+Resolve the issue by removing mpx from libvirt's cpu models as well.
+
+Signed-off-by: Hector Cao <hector.cao@canonical.com>
+---
+ src/cpu_map/x86_Cascadelake-Server-noTSX.xml                    | 2 +-
+ src/cpu_map/x86_Cascadelake-Server.xml                          | 2 +-
+ src/cpu_map/x86_Icelake-Server-noTSX.xml                        | 2 +-
+ src/cpu_map/x86_Icelake-Server.xml                              | 2 +-
+ src/cpu_map/x86_Skylake-Client-IBRS.xml                         | 2 +-
+ src/cpu_map/x86_Skylake-Client-noTSX-IBRS.xml                   | 2 +-
+ src/cpu_map/x86_Skylake-Client.xml                              | 2 +-
+ src/cpu_map/x86_Skylake-Server-IBRS.xml                         | 2 +-
+ src/cpu_map/x86_Skylake-Server-noTSX-IBRS.xml                   | 2 +-
+ src/cpu_map/x86_Skylake-Server.xml                              | 2 +-
+ tests/cputestdata/x86_64-cpuid-Core-i5-6600-guest.xml           | 1 +
+ tests/cputestdata/x86_64-cpuid-Core-i5-6600-host.xml            | 1 +
+ tests/cputestdata/x86_64-cpuid-Core-i5-6600-json.xml            | 1 +
+ tests/cputestdata/x86_64-cpuid-Core-i7-7600U-guest.xml          | 1 +
+ tests/cputestdata/x86_64-cpuid-Core-i7-7600U-host.xml           | 1 +
+ tests/cputestdata/x86_64-cpuid-Core-i7-7600U-json.xml           | 1 +
+ tests/cputestdata/x86_64-cpuid-Core-i7-7700-guest.xml           | 1 +
+ tests/cputestdata/x86_64-cpuid-Core-i7-7700-host.xml            | 1 +
+ tests/cputestdata/x86_64-cpuid-Core-i7-7700-json.xml            | 1 +
+ tests/cputestdata/x86_64-cpuid-Core-i7-8550U-guest.xml          | 1 +
+ tests/cputestdata/x86_64-cpuid-Core-i7-8550U-host.xml           | 1 +
+ tests/cputestdata/x86_64-cpuid-Core-i7-8550U-json.xml           | 1 +
+ tests/cputestdata/x86_64-cpuid-Core-i7-8700-guest.xml           | 1 +
+ tests/cputestdata/x86_64-cpuid-Core-i7-8700-host.xml            | 1 +
+ tests/cputestdata/x86_64-cpuid-Core-i7-8700-json.xml            | 1 +
+ tests/cputestdata/x86_64-cpuid-Ice-Lake-Server-guest.xml        | 1 +
+ tests/cputestdata/x86_64-cpuid-Ice-Lake-Server-host.xml         | 1 +
+ tests/cputestdata/x86_64-cpuid-Ice-Lake-Server-json.xml         | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-E3-1225-v5-guest.xml        | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-E3-1225-v5-host.xml         | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-E3-1225-v5-json.xml         | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-E3-1245-v5-guest.xml        | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-E3-1245-v5-host.xml         | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-E3-1245-v5-json.xml         | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-Gold-5115-guest.xml         | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-Gold-5115-host.xml          | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-Gold-5115-json.xml          | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-Gold-6130-guest.xml         | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-Gold-6130-host.xml          | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-Gold-6130-json.xml          | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-Gold-6148-guest.xml         | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-Gold-6148-host.xml          | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-Gold-6148-json.xml          | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-Platinum-8268-guest.xml     | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-Platinum-8268-host.xml      | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-Platinum-8268-json.xml      | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-Platinum-9242-guest.xml     | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-Platinum-9242-host.xml      | 1 +
+ tests/cputestdata/x86_64-cpuid-Xeon-Platinum-9242-json.xml      | 1 +
+ tests/cputestdata/x86_64-cpuid-baseline-Cascadelake+Icelake.xml | 1 +
+ .../x86_64-cpuid-baseline-Cascadelake+Skylake-IBRS.xml          | 1 +
+ tests/cputestdata/x86_64-cpuid-baseline-Cascadelake+Skylake.xml | 1 +
+ .../x86_64-cpuid-baseline-Cooperlake+Cascadelake.xml            | 1 +
+ tests/cputestdata/x86_64-cpuid-baseline-Cooperlake+Icelake.xml  | 1 +
+ .../cputestdata/x86_64-cpuid-baseline-Skylake-Client+Server.xml | 1 +
+ tests/domaincapsdata/qemu_4.2.0-q35.x86_64.xml                  | 1 +
+ tests/domaincapsdata/qemu_4.2.0.x86_64.xml                      | 1 +
+ tests/domaincapsdata/qemu_5.0.0-q35.x86_64.xml                  | 1 +
+ tests/domaincapsdata/qemu_5.0.0.x86_64.xml                      | 1 +
+ .../cpu-Icelake-Server-pconfig.x86_64-latest.args               | 2 +-
+ .../cpu-host-model-fallback-kvm.x86_64-4.2.0.args               | 2 +-
+ .../cpu-host-model-fallback-kvm.x86_64-5.0.0.args               | 2 +-
+ tests/qemuxml2argvdata/cpu-host-model-kvm.x86_64-4.2.0.args     | 2 +-
+ tests/qemuxml2argvdata/cpu-host-model-kvm.x86_64-5.0.0.args     | 2 +-
+ .../cpu-host-model-nofallback-kvm.x86_64-4.2.0.args             | 2 +-
+ .../cpu-host-model-nofallback-kvm.x86_64-5.0.0.args             | 2 +-
+ 66 files changed, 66 insertions(+), 17 deletions(-)
+
+diff --git a/src/cpu_map/x86_Cascadelake-Server-noTSX.xml b/src/cpu_map/x86_Cascadelake-Server-noTSX.xml
+index 056f43d088..8c4cbf9c9a 100644
+--- a/src/cpu_map/x86_Cascadelake-Server-noTSX.xml
++++ b/src/cpu_map/x86_Cascadelake-Server-noTSX.xml
+@@ -39,7 +39,7 @@
+     <feature name='mce'/>
+     <feature name='mmx'/>
+     <feature name='movbe'/>
+-    <feature name='mpx'/>
++    <feature name='mpx' removed='yes'/>
+     <feature name='msr'/>
+     <feature name='mtrr'/>
+     <feature name='nx'/>
+diff --git a/src/cpu_map/x86_Cascadelake-Server.xml b/src/cpu_map/x86_Cascadelake-Server.xml
+index 88e51c2067..c7c4f6412f 100644
+--- a/src/cpu_map/x86_Cascadelake-Server.xml
++++ b/src/cpu_map/x86_Cascadelake-Server.xml
+@@ -40,7 +40,7 @@
+     <feature name='mce'/>
+     <feature name='mmx'/>
+     <feature name='movbe'/>
+-    <feature name='mpx'/>
++    <feature name='mpx' removed='yes'/>
+     <feature name='msr'/>
+     <feature name='mtrr'/>
+     <feature name='nx'/>
+diff --git a/src/cpu_map/x86_Icelake-Server-noTSX.xml b/src/cpu_map/x86_Icelake-Server-noTSX.xml
+index 072f8145c4..caba24ab35 100644
+--- a/src/cpu_map/x86_Icelake-Server-noTSX.xml
++++ b/src/cpu_map/x86_Icelake-Server-noTSX.xml
+@@ -46,7 +46,7 @@
+     <feature name='mce'/>
+     <feature name='mmx'/>
+     <feature name='movbe'/>
+-    <feature name='mpx'/>
++    <feature name='mpx' removed='yes'/>
+     <feature name='msr'/>
+     <feature name='mtrr'/>
+     <feature name='nx'/>
+diff --git a/src/cpu_map/x86_Icelake-Server.xml b/src/cpu_map/x86_Icelake-Server.xml
+index 3a35145d7f..5a864b2fad 100644
+--- a/src/cpu_map/x86_Icelake-Server.xml
++++ b/src/cpu_map/x86_Icelake-Server.xml
+@@ -47,7 +47,7 @@
+     <feature name='mce'/>
+     <feature name='mmx'/>
+     <feature name='movbe'/>
+-    <feature name='mpx'/>
++    <feature name='mpx' removed='yes'/>
+     <feature name='msr'/>
+     <feature name='mtrr'/>
+     <feature name='nx'/>
+diff --git a/src/cpu_map/x86_Skylake-Client-IBRS.xml b/src/cpu_map/x86_Skylake-Client-IBRS.xml
+index 1c77f9595b..f36a8bd210 100644
+--- a/src/cpu_map/x86_Skylake-Client-IBRS.xml
++++ b/src/cpu_map/x86_Skylake-Client-IBRS.xml
+@@ -37,7 +37,7 @@
+     <feature name='mce'/>
+     <feature name='mmx'/>
+     <feature name='movbe'/>
+-    <feature name='mpx'/>
++    <feature name='mpx' removed='yes'/>
+     <feature name='msr'/>
+     <feature name='mtrr'/>
+     <feature name='nx'/>
+diff --git a/src/cpu_map/x86_Skylake-Client-noTSX-IBRS.xml b/src/cpu_map/x86_Skylake-Client-noTSX-IBRS.xml
+index dca117028c..5150117db4 100644
+--- a/src/cpu_map/x86_Skylake-Client-noTSX-IBRS.xml
++++ b/src/cpu_map/x86_Skylake-Client-noTSX-IBRS.xml
+@@ -36,7 +36,7 @@
+     <feature name='mce'/>
+     <feature name='mmx'/>
+     <feature name='movbe'/>
+-    <feature name='mpx'/>
++    <feature name='mpx' removed='yes'/>
+     <feature name='msr'/>
+     <feature name='mtrr'/>
+     <feature name='nx'/>
+diff --git a/src/cpu_map/x86_Skylake-Client.xml b/src/cpu_map/x86_Skylake-Client.xml
+index 68e5d2d038..061c0dfaec 100644
+--- a/src/cpu_map/x86_Skylake-Client.xml
++++ b/src/cpu_map/x86_Skylake-Client.xml
+@@ -37,7 +37,7 @@
+     <feature name='mce'/>
+     <feature name='mmx'/>
+     <feature name='movbe'/>
+-    <feature name='mpx'/>
++    <feature name='mpx' removed='yes'/>
+     <feature name='msr'/>
+     <feature name='mtrr'/>
+     <feature name='nx'/>
+diff --git a/src/cpu_map/x86_Skylake-Server-IBRS.xml b/src/cpu_map/x86_Skylake-Server-IBRS.xml
+index e467b76242..bbd3c8998e 100644
+--- a/src/cpu_map/x86_Skylake-Server-IBRS.xml
++++ b/src/cpu_map/x86_Skylake-Server-IBRS.xml
+@@ -38,7 +38,7 @@
+     <feature name='mce'/>
+     <feature name='mmx'/>
+     <feature name='movbe'/>
+-    <feature name='mpx'/>
++    <feature name='mpx' removed='yes'/>
+     <feature name='msr'/>
+     <feature name='mtrr'/>
+     <feature name='nx'/>
+diff --git a/src/cpu_map/x86_Skylake-Server-noTSX-IBRS.xml b/src/cpu_map/x86_Skylake-Server-noTSX-IBRS.xml
+index b8601da0cb..ee0d2a2fa3 100644
+--- a/src/cpu_map/x86_Skylake-Server-noTSX-IBRS.xml
++++ b/src/cpu_map/x86_Skylake-Server-noTSX-IBRS.xml
+@@ -37,7 +37,7 @@
+     <feature name='mce'/>
+     <feature name='mmx'/>
+     <feature name='movbe'/>
+-    <feature name='mpx'/>
++    <feature name='mpx' removed='yes'/>
+     <feature name='msr'/>
+     <feature name='mtrr'/>
+     <feature name='nx'/>
+diff --git a/src/cpu_map/x86_Skylake-Server.xml b/src/cpu_map/x86_Skylake-Server.xml
+index cc1e9ddd7f..9d9d112d40 100644
+--- a/src/cpu_map/x86_Skylake-Server.xml
++++ b/src/cpu_map/x86_Skylake-Server.xml
+@@ -38,7 +38,7 @@
+     <feature name='mce'/>
+     <feature name='mmx'/>
+     <feature name='movbe'/>
+-    <feature name='mpx'/>
++    <feature name='mpx' removed='yes'/>
+     <feature name='msr'/>
+     <feature name='mtrr'/>
+     <feature name='nx'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Core-i5-6600-guest.xml b/tests/cputestdata/x86_64-cpuid-Core-i5-6600-guest.xml
+index 5777a0bfba..823494afa0 100644
+--- a/tests/cputestdata/x86_64-cpuid-Core-i5-6600-guest.xml
++++ b/tests/cputestdata/x86_64-cpuid-Core-i5-6600-guest.xml
+@@ -18,6 +18,7 @@
+   <feature policy='require' name='pdcm'/>
+   <feature policy='require' name='osxsave'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='intel-pt'/>
+   <feature policy='require' name='xsaves'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Core-i5-6600-host.xml b/tests/cputestdata/x86_64-cpuid-Core-i5-6600-host.xml
+index c52e8db235..3511230df8 100644
+--- a/tests/cputestdata/x86_64-cpuid-Core-i5-6600-host.xml
++++ b/tests/cputestdata/x86_64-cpuid-Core-i5-6600-host.xml
+@@ -20,6 +20,7 @@
+   <feature name='pdcm'/>
+   <feature name='osxsave'/>
+   <feature name='tsc_adjust'/>
++  <feature name='mpx'/>
+   <feature name='clflushopt'/>
+   <feature name='intel-pt'/>
+   <feature name='xsaves'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Core-i5-6600-json.xml b/tests/cputestdata/x86_64-cpuid-Core-i5-6600-json.xml
+index 61a52212a6..46111d8616 100644
+--- a/tests/cputestdata/x86_64-cpuid-Core-i5-6600-json.xml
++++ b/tests/cputestdata/x86_64-cpuid-Core-i5-6600-json.xml
+@@ -4,6 +4,7 @@
+   <feature policy='require' name='ss'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='xsaves'/>
+   <feature policy='require' name='pdpe1gb'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Core-i7-7600U-guest.xml b/tests/cputestdata/x86_64-cpuid-Core-i7-7600U-guest.xml
+index b6e643cd08..711ccfc3ca 100644
+--- a/tests/cputestdata/x86_64-cpuid-Core-i7-7600U-guest.xml
++++ b/tests/cputestdata/x86_64-cpuid-Core-i7-7600U-guest.xml
+@@ -19,6 +19,7 @@
+   <feature policy='require' name='osxsave'/>
+   <feature policy='require' name='tsc_adjust'/>
+   <feature policy='require' name='sgx'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='intel-pt'/>
+   <feature policy='require' name='stibp'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Core-i7-7600U-host.xml b/tests/cputestdata/x86_64-cpuid-Core-i7-7600U-host.xml
+index 2a7493f941..735c9417ba 100644
+--- a/tests/cputestdata/x86_64-cpuid-Core-i7-7600U-host.xml
++++ b/tests/cputestdata/x86_64-cpuid-Core-i7-7600U-host.xml
+@@ -21,6 +21,7 @@
+   <feature name='osxsave'/>
+   <feature name='tsc_adjust'/>
+   <feature name='sgx'/>
++  <feature name='mpx'/>
+   <feature name='clflushopt'/>
+   <feature name='intel-pt'/>
+   <feature name='stibp'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Core-i7-7600U-json.xml b/tests/cputestdata/x86_64-cpuid-Core-i7-7600U-json.xml
+index 690081493b..068ea0fbb7 100644
+--- a/tests/cputestdata/x86_64-cpuid-Core-i7-7600U-json.xml
++++ b/tests/cputestdata/x86_64-cpuid-Core-i7-7600U-json.xml
+@@ -5,6 +5,7 @@
+   <feature policy='require' name='vmx'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='umip'/>
+   <feature policy='require' name='ssbd'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Core-i7-7700-guest.xml b/tests/cputestdata/x86_64-cpuid-Core-i7-7700-guest.xml
+index 60bace9ed6..4f5c4103b4 100644
+--- a/tests/cputestdata/x86_64-cpuid-Core-i7-7700-guest.xml
++++ b/tests/cputestdata/x86_64-cpuid-Core-i7-7700-guest.xml
+@@ -19,6 +19,7 @@
+   <feature policy='require' name='osxsave'/>
+   <feature policy='require' name='tsc_adjust'/>
+   <feature policy='require' name='sgx'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='intel-pt'/>
+   <feature policy='require' name='xsaves'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Core-i7-7700-host.xml b/tests/cputestdata/x86_64-cpuid-Core-i7-7700-host.xml
+index 6b9323842a..ae8f3e277a 100644
+--- a/tests/cputestdata/x86_64-cpuid-Core-i7-7700-host.xml
++++ b/tests/cputestdata/x86_64-cpuid-Core-i7-7700-host.xml
+@@ -21,6 +21,7 @@
+   <feature name='osxsave'/>
+   <feature name='tsc_adjust'/>
+   <feature name='sgx'/>
++  <feature name='mpx'/>
+   <feature name='clflushopt'/>
+   <feature name='intel-pt'/>
+   <feature name='xsaves'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Core-i7-7700-json.xml b/tests/cputestdata/x86_64-cpuid-Core-i7-7700-json.xml
+index 12424bc67c..cbdde0ff15 100644
+--- a/tests/cputestdata/x86_64-cpuid-Core-i7-7700-json.xml
++++ b/tests/cputestdata/x86_64-cpuid-Core-i7-7700-json.xml
+@@ -4,6 +4,7 @@
+   <feature policy='require' name='ss'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='pdpe1gb'/>
+ </cpu>
+diff --git a/tests/cputestdata/x86_64-cpuid-Core-i7-8550U-guest.xml b/tests/cputestdata/x86_64-cpuid-Core-i7-8550U-guest.xml
+index 5ed8ac37a3..61d0f8b2a1 100644
+--- a/tests/cputestdata/x86_64-cpuid-Core-i7-8550U-guest.xml
++++ b/tests/cputestdata/x86_64-cpuid-Core-i7-8550U-guest.xml
+@@ -18,6 +18,7 @@
+   <feature policy='require' name='osxsave'/>
+   <feature policy='require' name='tsc_adjust'/>
+   <feature policy='require' name='sgx'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='intel-pt'/>
+   <feature policy='require' name='md-clear'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Core-i7-8550U-host.xml b/tests/cputestdata/x86_64-cpuid-Core-i7-8550U-host.xml
+index 805a31411d..5926805f28 100644
+--- a/tests/cputestdata/x86_64-cpuid-Core-i7-8550U-host.xml
++++ b/tests/cputestdata/x86_64-cpuid-Core-i7-8550U-host.xml
+@@ -20,6 +20,7 @@
+   <feature name='osxsave'/>
+   <feature name='tsc_adjust'/>
+   <feature name='sgx'/>
++  <feature name='mpx'/>
+   <feature name='clflushopt'/>
+   <feature name='intel-pt'/>
+   <feature name='md-clear'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Core-i7-8550U-json.xml b/tests/cputestdata/x86_64-cpuid-Core-i7-8550U-json.xml
+index e933265248..498e9deaf2 100644
+--- a/tests/cputestdata/x86_64-cpuid-Core-i7-8550U-json.xml
++++ b/tests/cputestdata/x86_64-cpuid-Core-i7-8550U-json.xml
+@@ -5,6 +5,7 @@
+   <feature policy='require' name='vmx'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='umip'/>
+   <feature policy='require' name='md-clear'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Core-i7-8700-guest.xml b/tests/cputestdata/x86_64-cpuid-Core-i7-8700-guest.xml
+index 6cedb93633..2d96f676ee 100644
+--- a/tests/cputestdata/x86_64-cpuid-Core-i7-8700-guest.xml
++++ b/tests/cputestdata/x86_64-cpuid-Core-i7-8700-guest.xml
+@@ -19,6 +19,7 @@
+   <feature policy='require' name='osxsave'/>
+   <feature policy='require' name='tsc_adjust'/>
+   <feature policy='require' name='sgx'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='intel-pt'/>
+   <feature policy='require' name='sgxlc'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Core-i7-8700-host.xml b/tests/cputestdata/x86_64-cpuid-Core-i7-8700-host.xml
+index 0cc65b4322..cc9a9efa76 100644
+--- a/tests/cputestdata/x86_64-cpuid-Core-i7-8700-host.xml
++++ b/tests/cputestdata/x86_64-cpuid-Core-i7-8700-host.xml
+@@ -21,6 +21,7 @@
+   <feature name='osxsave'/>
+   <feature name='tsc_adjust'/>
+   <feature name='sgx'/>
++  <feature name='mpx'/>
+   <feature name='clflushopt'/>
+   <feature name='intel-pt'/>
+   <feature name='sgxlc'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Core-i7-8700-json.xml b/tests/cputestdata/x86_64-cpuid-Core-i7-8700-json.xml
+index fd7539f7ce..a6f64f2020 100644
+--- a/tests/cputestdata/x86_64-cpuid-Core-i7-8700-json.xml
++++ b/tests/cputestdata/x86_64-cpuid-Core-i7-8700-json.xml
+@@ -4,6 +4,7 @@
+   <feature policy='require' name='ss'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='umip'/>
+   <feature policy='require' name='ssbd'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Ice-Lake-Server-guest.xml b/tests/cputestdata/x86_64-cpuid-Ice-Lake-Server-guest.xml
+index 38d95680d3..7c125bbd9a 100644
+--- a/tests/cputestdata/x86_64-cpuid-Ice-Lake-Server-guest.xml
++++ b/tests/cputestdata/x86_64-cpuid-Ice-Lake-Server-guest.xml
+@@ -21,6 +21,7 @@
+   <feature policy='require' name='tsc_adjust'/>
+   <feature policy='require' name='sgx'/>
+   <feature policy='require' name='cmt'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='avx512ifma'/>
+   <feature policy='require' name='intel-pt'/>
+   <feature policy='require' name='sha-ni'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Ice-Lake-Server-host.xml b/tests/cputestdata/x86_64-cpuid-Ice-Lake-Server-host.xml
+index ccb74f41ef..54628b7a01 100644
+--- a/tests/cputestdata/x86_64-cpuid-Ice-Lake-Server-host.xml
++++ b/tests/cputestdata/x86_64-cpuid-Ice-Lake-Server-host.xml
+@@ -23,6 +23,7 @@
+   <feature name='tsc_adjust'/>
+   <feature name='sgx'/>
+   <feature name='cmt'/>
++  <feature name='mpx'/>
+   <feature name='avx512ifma'/>
+   <feature name='intel-pt'/>
+   <feature name='sha-ni'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Ice-Lake-Server-json.xml b/tests/cputestdata/x86_64-cpuid-Ice-Lake-Server-json.xml
+index ada11d2608..7f2ca1ca36 100644
+--- a/tests/cputestdata/x86_64-cpuid-Ice-Lake-Server-json.xml
++++ b/tests/cputestdata/x86_64-cpuid-Ice-Lake-Server-json.xml
+@@ -4,6 +4,7 @@
+   <feature policy='require' name='ss'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='avx512ifma'/>
+   <feature policy='require' name='sha-ni'/>
+   <feature policy='require' name='stibp'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-E3-1225-v5-guest.xml b/tests/cputestdata/x86_64-cpuid-Xeon-E3-1225-v5-guest.xml
+index ea1c79c0df..0af37fb828 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-E3-1225-v5-guest.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-E3-1225-v5-guest.xml
+@@ -19,6 +19,7 @@
+   <feature policy='require' name='osxsave'/>
+   <feature policy='require' name='tsc_adjust'/>
+   <feature policy='require' name='sgx'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='intel-pt'/>
+   <feature policy='require' name='md-clear'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-E3-1225-v5-host.xml b/tests/cputestdata/x86_64-cpuid-Xeon-E3-1225-v5-host.xml
+index d7a7f30b9e..696f23145d 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-E3-1225-v5-host.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-E3-1225-v5-host.xml
+@@ -21,6 +21,7 @@
+   <feature name='osxsave'/>
+   <feature name='tsc_adjust'/>
+   <feature name='sgx'/>
++  <feature name='mpx'/>
+   <feature name='clflushopt'/>
+   <feature name='intel-pt'/>
+   <feature name='md-clear'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-E3-1225-v5-json.xml b/tests/cputestdata/x86_64-cpuid-Xeon-E3-1225-v5-json.xml
+index a5591278df..624fb4692a 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-E3-1225-v5-json.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-E3-1225-v5-json.xml
+@@ -4,6 +4,7 @@
+   <feature policy='require' name='ss'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='md-clear'/>
+   <feature policy='require' name='stibp'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-E3-1245-v5-guest.xml b/tests/cputestdata/x86_64-cpuid-Xeon-E3-1245-v5-guest.xml
+index 60bace9ed6..4f5c4103b4 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-E3-1245-v5-guest.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-E3-1245-v5-guest.xml
+@@ -19,6 +19,7 @@
+   <feature policy='require' name='osxsave'/>
+   <feature policy='require' name='tsc_adjust'/>
+   <feature policy='require' name='sgx'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='intel-pt'/>
+   <feature policy='require' name='xsaves'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-E3-1245-v5-host.xml b/tests/cputestdata/x86_64-cpuid-Xeon-E3-1245-v5-host.xml
+index d2f808f9a6..e535a014c3 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-E3-1245-v5-host.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-E3-1245-v5-host.xml
+@@ -21,6 +21,7 @@
+   <feature name='osxsave'/>
+   <feature name='tsc_adjust'/>
+   <feature name='sgx'/>
++  <feature name='mpx'/>
+   <feature name='clflushopt'/>
+   <feature name='intel-pt'/>
+   <feature name='xsaves'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-E3-1245-v5-json.xml b/tests/cputestdata/x86_64-cpuid-Xeon-E3-1245-v5-json.xml
+index ad98679027..3558b9e6af 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-E3-1245-v5-json.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-E3-1245-v5-json.xml
+@@ -5,6 +5,7 @@
+   <feature policy='require' name='vmx'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='xsaves'/>
+   <feature policy='require' name='pdpe1gb'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-Gold-5115-guest.xml b/tests/cputestdata/x86_64-cpuid-Xeon-Gold-5115-guest.xml
+index 8f014f6e28..9947d3e81b 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-Gold-5115-guest.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-Gold-5115-guest.xml
+@@ -20,6 +20,7 @@
+   <feature policy='require' name='osxsave'/>
+   <feature policy='require' name='tsc_adjust'/>
+   <feature policy='require' name='cmt'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='intel-pt'/>
+   <feature policy='require' name='pku'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-Gold-5115-host.xml b/tests/cputestdata/x86_64-cpuid-Xeon-Gold-5115-host.xml
+index e004747ada..502a5471c0 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-Gold-5115-host.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-Gold-5115-host.xml
+@@ -22,6 +22,7 @@
+   <feature name='osxsave'/>
+   <feature name='tsc_adjust'/>
+   <feature name='cmt'/>
++  <feature name='mpx'/>
+   <feature name='clflushopt'/>
+   <feature name='intel-pt'/>
+   <feature name='pku'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-Gold-5115-json.xml b/tests/cputestdata/x86_64-cpuid-Xeon-Gold-5115-json.xml
+index 7c7e95ce0d..8731e9f7f7 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-Gold-5115-json.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-Gold-5115-json.xml
+@@ -4,5 +4,6 @@
+   <feature policy='require' name='ss'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+ </cpu>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6130-guest.xml b/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6130-guest.xml
+index f4f0199607..1aab2f8251 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6130-guest.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6130-guest.xml
+@@ -20,6 +20,7 @@
+   <feature policy='require' name='osxsave'/>
+   <feature policy='require' name='tsc_adjust'/>
+   <feature policy='require' name='cmt'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='intel-pt'/>
+   <feature policy='require' name='pku'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6130-host.xml b/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6130-host.xml
+index 325c2fe26f..e6d2ba021f 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6130-host.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6130-host.xml
+@@ -22,6 +22,7 @@
+   <feature name='osxsave'/>
+   <feature name='tsc_adjust'/>
+   <feature name='cmt'/>
++  <feature name='mpx'/>
+   <feature name='clflushopt'/>
+   <feature name='intel-pt'/>
+   <feature name='pku'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6130-json.xml b/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6130-json.xml
+index b482043ccf..91f82bca3d 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6130-json.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6130-json.xml
+@@ -5,6 +5,7 @@
+   <feature policy='require' name='vmx'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='umip'/>
+   <feature policy='require' name='pku'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6148-guest.xml b/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6148-guest.xml
+index f31ca1ffc5..5b5d0ad700 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6148-guest.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6148-guest.xml
+@@ -20,6 +20,7 @@
+   <feature policy='require' name='osxsave'/>
+   <feature policy='require' name='tsc_adjust'/>
+   <feature policy='require' name='cmt'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='intel-pt'/>
+   <feature policy='require' name='pku'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6148-host.xml b/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6148-host.xml
+index da7e96e533..be4129cb31 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6148-host.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6148-host.xml
+@@ -22,6 +22,7 @@
+   <feature name='osxsave'/>
+   <feature name='tsc_adjust'/>
+   <feature name='cmt'/>
++  <feature name='mpx'/>
+   <feature name='clflushopt'/>
+   <feature name='intel-pt'/>
+   <feature name='pku'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6148-json.xml b/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6148-json.xml
+index 1dfad4a0cb..20654cd844 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6148-json.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-Gold-6148-json.xml
+@@ -4,5 +4,6 @@
+   <feature policy='require' name='ss'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+ </cpu>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-8268-guest.xml b/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-8268-guest.xml
+index 8fd1611842..789aa65e33 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-8268-guest.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-8268-guest.xml
+@@ -20,6 +20,7 @@
+   <feature policy='require' name='osxsave'/>
+   <feature policy='require' name='tsc_adjust'/>
+   <feature policy='require' name='cmt'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='intel-pt'/>
+   <feature policy='require' name='pku'/>
+   <feature policy='require' name='ospke'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-8268-host.xml b/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-8268-host.xml
+index 7055c72112..e2c9130fd7 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-8268-host.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-8268-host.xml
+@@ -22,6 +22,7 @@
+   <feature name='osxsave'/>
+   <feature name='tsc_adjust'/>
+   <feature name='cmt'/>
++  <feature name='mpx'/>
+   <feature name='intel-pt'/>
+   <feature name='pku'/>
+   <feature name='ospke'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-8268-json.xml b/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-8268-json.xml
+index 78863c61d1..921ff81c56 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-8268-json.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-8268-json.xml
+@@ -4,6 +4,7 @@
+   <feature policy='require' name='ss'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='umip'/>
+   <feature policy='require' name='pku'/>
+   <feature policy='require' name='xsaves'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-9242-guest.xml b/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-9242-guest.xml
+index 88c2d84d65..06f3815015 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-9242-guest.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-9242-guest.xml
+@@ -20,6 +20,7 @@
+   <feature policy='require' name='osxsave'/>
+   <feature policy='require' name='tsc_adjust'/>
+   <feature policy='require' name='cmt'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='intel-pt'/>
+   <feature policy='require' name='pku'/>
+   <feature policy='require' name='ospke'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-9242-host.xml b/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-9242-host.xml
+index 5e59520919..4fb904fb33 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-9242-host.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-9242-host.xml
+@@ -22,6 +22,7 @@
+   <feature name='osxsave'/>
+   <feature name='tsc_adjust'/>
+   <feature name='cmt'/>
++  <feature name='mpx'/>
+   <feature name='intel-pt'/>
+   <feature name='pku'/>
+   <feature name='ospke'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-9242-json.xml b/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-9242-json.xml
+index ac0e520767..91fecff825 100644
+--- a/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-9242-json.xml
++++ b/tests/cputestdata/x86_64-cpuid-Xeon-Platinum-9242-json.xml
+@@ -5,6 +5,7 @@
+   <feature policy='require' name='vmx'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='umip'/>
+   <feature policy='require' name='pku'/>
+   <feature policy='require' name='md-clear'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-baseline-Cascadelake+Icelake.xml b/tests/cputestdata/x86_64-cpuid-baseline-Cascadelake+Icelake.xml
+index 071c799ba2..ac7c8b166f 100644
+--- a/tests/cputestdata/x86_64-cpuid-baseline-Cascadelake+Icelake.xml
++++ b/tests/cputestdata/x86_64-cpuid-baseline-Cascadelake+Icelake.xml
+@@ -4,6 +4,7 @@
+   <feature policy='require' name='ss'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='umip'/>
+   <feature policy='require' name='pku'/>
+   <feature policy='require' name='stibp'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-baseline-Cascadelake+Skylake-IBRS.xml b/tests/cputestdata/x86_64-cpuid-baseline-Cascadelake+Skylake-IBRS.xml
+index 5e42876b39..841f354a6e 100644
+--- a/tests/cputestdata/x86_64-cpuid-baseline-Cascadelake+Skylake-IBRS.xml
++++ b/tests/cputestdata/x86_64-cpuid-baseline-Cascadelake+Skylake-IBRS.xml
+@@ -4,6 +4,7 @@
+   <feature policy='require' name='ss'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='umip'/>
+   <feature policy='require' name='pku'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-baseline-Cascadelake+Skylake.xml b/tests/cputestdata/x86_64-cpuid-baseline-Cascadelake+Skylake.xml
+index 906259df0b..0dd11218ce 100644
+--- a/tests/cputestdata/x86_64-cpuid-baseline-Cascadelake+Skylake.xml
++++ b/tests/cputestdata/x86_64-cpuid-baseline-Cascadelake+Skylake.xml
+@@ -4,5 +4,6 @@
+   <feature policy='require' name='ss'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+ </cpu>
+diff --git a/tests/cputestdata/x86_64-cpuid-baseline-Cooperlake+Cascadelake.xml b/tests/cputestdata/x86_64-cpuid-baseline-Cooperlake+Cascadelake.xml
+index f9e9c476b5..7f29d5c941 100644
+--- a/tests/cputestdata/x86_64-cpuid-baseline-Cooperlake+Cascadelake.xml
++++ b/tests/cputestdata/x86_64-cpuid-baseline-Cooperlake+Cascadelake.xml
+@@ -5,6 +5,7 @@
+   <feature policy='require' name='vmx'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='umip'/>
+   <feature policy='require' name='pku'/>
+   <feature policy='require' name='md-clear'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-baseline-Cooperlake+Icelake.xml b/tests/cputestdata/x86_64-cpuid-baseline-Cooperlake+Icelake.xml
+index 071c799ba2..ac7c8b166f 100644
+--- a/tests/cputestdata/x86_64-cpuid-baseline-Cooperlake+Icelake.xml
++++ b/tests/cputestdata/x86_64-cpuid-baseline-Cooperlake+Icelake.xml
+@@ -4,6 +4,7 @@
+   <feature policy='require' name='ss'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='umip'/>
+   <feature policy='require' name='pku'/>
+   <feature policy='require' name='stibp'/>
+diff --git a/tests/cputestdata/x86_64-cpuid-baseline-Skylake-Client+Server.xml b/tests/cputestdata/x86_64-cpuid-baseline-Skylake-Client+Server.xml
+index d46ff26eeb..7091fec30d 100644
+--- a/tests/cputestdata/x86_64-cpuid-baseline-Skylake-Client+Server.xml
++++ b/tests/cputestdata/x86_64-cpuid-baseline-Skylake-Client+Server.xml
+@@ -4,6 +4,7 @@
+   <feature policy='require' name='ss'/>
+   <feature policy='require' name='hypervisor'/>
+   <feature policy='require' name='tsc_adjust'/>
++  <feature policy='require' name='mpx'/>
+   <feature policy='require' name='clflushopt'/>
+   <feature policy='require' name='pdpe1gb'/>
+ </cpu>
+diff --git a/tests/domaincapsdata/qemu_4.2.0-q35.x86_64.xml b/tests/domaincapsdata/qemu_4.2.0-q35.x86_64.xml
+index 152f201ff9..e4c906c1df 100644
+--- a/tests/domaincapsdata/qemu_4.2.0-q35.x86_64.xml
++++ b/tests/domaincapsdata/qemu_4.2.0-q35.x86_64.xml
+@@ -48,6 +48,7 @@
+       <feature policy='require' name='vmx'/>
+       <feature policy='require' name='hypervisor'/>
+       <feature policy='require' name='tsc_adjust'/>
++      <feature policy='require' name='mpx'/>
+       <feature policy='require' name='clflushopt'/>
+       <feature policy='require' name='umip'/>
+       <feature policy='require' name='md-clear'/>
+diff --git a/tests/domaincapsdata/qemu_4.2.0.x86_64.xml b/tests/domaincapsdata/qemu_4.2.0.x86_64.xml
+index 8b7cf44d6d..b683b77ff9 100644
+--- a/tests/domaincapsdata/qemu_4.2.0.x86_64.xml
++++ b/tests/domaincapsdata/qemu_4.2.0.x86_64.xml
+@@ -47,6 +47,7 @@
+       <feature policy='require' name='vmx'/>
+       <feature policy='require' name='hypervisor'/>
+       <feature policy='require' name='tsc_adjust'/>
++      <feature policy='require' name='mpx'/>
+       <feature policy='require' name='clflushopt'/>
+       <feature policy='require' name='umip'/>
+       <feature policy='require' name='md-clear'/>
+diff --git a/tests/domaincapsdata/qemu_5.0.0-q35.x86_64.xml b/tests/domaincapsdata/qemu_5.0.0-q35.x86_64.xml
+index 1d29a40f74..95883fd2fe 100644
+--- a/tests/domaincapsdata/qemu_5.0.0-q35.x86_64.xml
++++ b/tests/domaincapsdata/qemu_5.0.0-q35.x86_64.xml
+@@ -48,6 +48,7 @@
+       <feature policy='require' name='vmx'/>
+       <feature policy='require' name='hypervisor'/>
+       <feature policy='require' name='tsc_adjust'/>
++      <feature policy='require' name='mpx'/>
+       <feature policy='require' name='clflushopt'/>
+       <feature policy='require' name='umip'/>
+       <feature policy='require' name='md-clear'/>
+diff --git a/tests/domaincapsdata/qemu_5.0.0.x86_64.xml b/tests/domaincapsdata/qemu_5.0.0.x86_64.xml
+index f3b3adb19e..524858b9cc 100644
+--- a/tests/domaincapsdata/qemu_5.0.0.x86_64.xml
++++ b/tests/domaincapsdata/qemu_5.0.0.x86_64.xml
+@@ -47,6 +47,7 @@
+       <feature policy='require' name='vmx'/>
+       <feature policy='require' name='hypervisor'/>
+       <feature policy='require' name='tsc_adjust'/>
++      <feature policy='require' name='mpx'/>
+       <feature policy='require' name='clflushopt'/>
+       <feature policy='require' name='umip'/>
+       <feature policy='require' name='md-clear'/>
+diff --git a/tests/qemuxml2argvdata/cpu-Icelake-Server-pconfig.x86_64-latest.args b/tests/qemuxml2argvdata/cpu-Icelake-Server-pconfig.x86_64-latest.args
+index c841bb80c8..dc4a503dba 100644
+--- a/tests/qemuxml2argvdata/cpu-Icelake-Server-pconfig.x86_64-latest.args
++++ b/tests/qemuxml2argvdata/cpu-Icelake-Server-pconfig.x86_64-latest.args
+@@ -12,7 +12,7 @@ XDG_CONFIG_HOME=/var/lib/libvirt/qemu/domain--1-test/.config \
+ -object '{"qom-type":"secret","id":"masterKey0","format":"raw","file":"/var/lib/libvirt/qemu/domain--1-test/master-key.aes"}' \
+ -machine pc,usb=off,dump-guest-core=off,memory-backend=pc.ram,acpi=off \
+ -accel kvm \
+--cpu Icelake-Server,intel-pt=off \
++-cpu Icelake-Server,intel-pt=off,mpx=off \
+ -m size=219136k \
+ -object '{"qom-type":"memory-backend-ram","id":"pc.ram","size":224395264}' \
+ -overcommit mem-lock=off \
+diff --git a/tests/qemuxml2argvdata/cpu-host-model-fallback-kvm.x86_64-4.2.0.args b/tests/qemuxml2argvdata/cpu-host-model-fallback-kvm.x86_64-4.2.0.args
+index f5f0e818af..d8ae902da1 100644
+--- a/tests/qemuxml2argvdata/cpu-host-model-fallback-kvm.x86_64-4.2.0.args
++++ b/tests/qemuxml2argvdata/cpu-host-model-fallback-kvm.x86_64-4.2.0.args
+@@ -12,7 +12,7 @@ XDG_CONFIG_HOME=/var/lib/libvirt/qemu/domain--1-QEMUGuest1/.config \
+ -object secret,id=masterKey0,format=raw,file=/var/lib/libvirt/qemu/domain--1-QEMUGuest1/master-key.aes \
+ -machine pc-i440fx-4.2,usb=off,dump-guest-core=off \
+ -accel kvm \
+--cpu Skylake-Client-IBRS,ss=on,vmx=on,hypervisor=on,tsc-adjust=on,clflushopt=on,umip=on,md-clear=on,stibp=on,arch-capabilities=on,ssbd=on,xsaves=on,pdpe1gb=on,skip-l1dfl-vmentry=on,pschange-mc-no=on,vmx-ins-outs=on,vmx-true-ctls=on,vmx-store-lma=on,vmx-activity-hlt=on,vmx-vmwrite-vmexit-fields=on,vmx-apicv-xapic=on,vmx-ept=on,vmx-desc-exit=on,vmx-rdtscp-exit=on,vmx-apicv-x2apic=on,vmx-vpid=on,vmx-wbinvd-exit=on,vmx-unrestricted-guest=on,vmx-rdrand-exit=on,vmx-invpcid-exit=on,vmx-vmfunc=on,vmx-shadow-vmcs=on,vmx-rdseed-exit=on,vmx-pml=on,vmx-xsaves=on,vmx-invvpid=on,vmx-invvpid-single-addr=on,vmx-invvpid-all-context=on,vmx-ept-execonly=on,vmx-page-walk-4=on,vmx-ept-2mb=on,vmx-ept-1gb=on,vmx-invept=on,vmx-eptad=on,vmx-invept-single-context=on,vmx-invept-all-context=on,vmx-intr-exit=on,vmx-nmi-exit=on,vmx-vnmi=on,vmx-preemption-timer=on,vmx-vintr-pending=on,vmx-tsc-offset=on,vmx-hlt-exit=on,vmx-invlpg-exit=on,vmx-mwait-exit=on,vmx-rdpmc-exit=on,vmx-rdtsc-exit=on,vmx-cr3-load-noexit=on,vmx-cr3-store-noexit=on,vmx-cr8-load-exit=on,vmx-cr8-store-exit=on,vmx-flexpriority=on,vmx-vnmi-pending=on,vmx-movdr-exit=on,vmx-io-exit=on,vmx-io-bitmap=on,vmx-mtf=on,vmx-msr-bitmap=on,vmx-monitor-exit=on,vmx-pause-exit=on,vmx-secondary-ctls=on,vmx-exit-nosave-debugctl=on,vmx-exit-ack-intr=on,vmx-exit-save-pat=on,vmx-exit-load-pat=on,vmx-exit-save-efer=on,vmx-exit-load-efer=on,vmx-exit-save-preemption-timer=on,vmx-entry-noload-debugctl=on,vmx-entry-ia32e-mode=on,vmx-entry-load-pat=on,vmx-entry-load-efer=on,vmx-eptp-switching=on \
++-cpu Skylake-Client-IBRS,ss=on,vmx=on,hypervisor=on,tsc-adjust=on,mpx=on,clflushopt=on,umip=on,md-clear=on,stibp=on,arch-capabilities=on,ssbd=on,xsaves=on,pdpe1gb=on,skip-l1dfl-vmentry=on,pschange-mc-no=on,vmx-ins-outs=on,vmx-true-ctls=on,vmx-store-lma=on,vmx-activity-hlt=on,vmx-vmwrite-vmexit-fields=on,vmx-apicv-xapic=on,vmx-ept=on,vmx-desc-exit=on,vmx-rdtscp-exit=on,vmx-apicv-x2apic=on,vmx-vpid=on,vmx-wbinvd-exit=on,vmx-unrestricted-guest=on,vmx-rdrand-exit=on,vmx-invpcid-exit=on,vmx-vmfunc=on,vmx-shadow-vmcs=on,vmx-rdseed-exit=on,vmx-pml=on,vmx-xsaves=on,vmx-invvpid=on,vmx-invvpid-single-addr=on,vmx-invvpid-all-context=on,vmx-ept-execonly=on,vmx-page-walk-4=on,vmx-ept-2mb=on,vmx-ept-1gb=on,vmx-invept=on,vmx-eptad=on,vmx-invept-single-context=on,vmx-invept-all-context=on,vmx-intr-exit=on,vmx-nmi-exit=on,vmx-vnmi=on,vmx-preemption-timer=on,vmx-vintr-pending=on,vmx-tsc-offset=on,vmx-hlt-exit=on,vmx-invlpg-exit=on,vmx-mwait-exit=on,vmx-rdpmc-exit=on,vmx-rdtsc-exit=on,vmx-cr3-load-noexit=on,vmx-cr3-store-noexit=on,vmx-cr8-load-exit=on,vmx-cr8-store-exit=on,vmx-flexpriority=on,vmx-vnmi-pending=on,vmx-movdr-exit=on,vmx-io-exit=on,vmx-io-bitmap=on,vmx-mtf=on,vmx-msr-bitmap=on,vmx-monitor-exit=on,vmx-pause-exit=on,vmx-secondary-ctls=on,vmx-exit-nosave-debugctl=on,vmx-exit-ack-intr=on,vmx-exit-save-pat=on,vmx-exit-load-pat=on,vmx-exit-save-efer=on,vmx-exit-load-efer=on,vmx-exit-save-preemption-timer=on,vmx-entry-noload-debugctl=on,vmx-entry-ia32e-mode=on,vmx-entry-load-pat=on,vmx-entry-load-efer=on,vmx-eptp-switching=on \
+ -m size=219136k \
+ -overcommit mem-lock=off \
+ -smp 6,sockets=6,cores=1,threads=1 \
+diff --git a/tests/qemuxml2argvdata/cpu-host-model-fallback-kvm.x86_64-5.0.0.args b/tests/qemuxml2argvdata/cpu-host-model-fallback-kvm.x86_64-5.0.0.args
+index 699f48fbaa..d0d82fc6a1 100644
+--- a/tests/qemuxml2argvdata/cpu-host-model-fallback-kvm.x86_64-5.0.0.args
++++ b/tests/qemuxml2argvdata/cpu-host-model-fallback-kvm.x86_64-5.0.0.args
+@@ -12,7 +12,7 @@ XDG_CONFIG_HOME=/var/lib/libvirt/qemu/domain--1-QEMUGuest1/.config \
+ -object secret,id=masterKey0,format=raw,file=/var/lib/libvirt/qemu/domain--1-QEMUGuest1/master-key.aes \
+ -machine pc-i440fx-5.0,usb=off,dump-guest-core=off \
+ -accel kvm \
+--cpu Skylake-Client-IBRS,ss=on,vmx=on,hypervisor=on,tsc-adjust=on,clflushopt=on,umip=on,md-clear=on,stibp=on,arch-capabilities=on,ssbd=on,xsaves=on,pdpe1gb=on,skip-l1dfl-vmentry=on,pschange-mc-no=on,vmx-ins-outs=on,vmx-true-ctls=on,vmx-store-lma=on,vmx-activity-hlt=on,vmx-vmwrite-vmexit-fields=on,vmx-apicv-xapic=on,vmx-ept=on,vmx-desc-exit=on,vmx-rdtscp-exit=on,vmx-apicv-x2apic=on,vmx-vpid=on,vmx-wbinvd-exit=on,vmx-unrestricted-guest=on,vmx-rdrand-exit=on,vmx-invpcid-exit=on,vmx-vmfunc=on,vmx-shadow-vmcs=on,vmx-rdseed-exit=on,vmx-pml=on,vmx-xsaves=on,vmx-invvpid=on,vmx-invvpid-single-addr=on,vmx-invvpid-all-context=on,vmx-ept-execonly=on,vmx-page-walk-4=on,vmx-ept-2mb=on,vmx-ept-1gb=on,vmx-invept=on,vmx-eptad=on,vmx-invept-single-context=on,vmx-invept-all-context=on,vmx-intr-exit=on,vmx-nmi-exit=on,vmx-vnmi=on,vmx-preemption-timer=on,vmx-vintr-pending=on,vmx-tsc-offset=on,vmx-hlt-exit=on,vmx-invlpg-exit=on,vmx-mwait-exit=on,vmx-rdpmc-exit=on,vmx-rdtsc-exit=on,vmx-cr3-load-noexit=on,vmx-cr3-store-noexit=on,vmx-cr8-load-exit=on,vmx-cr8-store-exit=on,vmx-flexpriority=on,vmx-vnmi-pending=on,vmx-movdr-exit=on,vmx-io-exit=on,vmx-io-bitmap=on,vmx-mtf=on,vmx-msr-bitmap=on,vmx-monitor-exit=on,vmx-pause-exit=on,vmx-secondary-ctls=on,vmx-exit-nosave-debugctl=on,vmx-exit-ack-intr=on,vmx-exit-save-pat=on,vmx-exit-load-pat=on,vmx-exit-save-efer=on,vmx-exit-load-efer=on,vmx-exit-save-preemption-timer=on,vmx-entry-noload-debugctl=on,vmx-entry-ia32e-mode=on,vmx-entry-load-pat=on,vmx-entry-load-efer=on,vmx-eptp-switching=on \
++-cpu Skylake-Client-IBRS,ss=on,vmx=on,hypervisor=on,tsc-adjust=on,mpx=on,clflushopt=on,umip=on,md-clear=on,stibp=on,arch-capabilities=on,ssbd=on,xsaves=on,pdpe1gb=on,skip-l1dfl-vmentry=on,pschange-mc-no=on,vmx-ins-outs=on,vmx-true-ctls=on,vmx-store-lma=on,vmx-activity-hlt=on,vmx-vmwrite-vmexit-fields=on,vmx-apicv-xapic=on,vmx-ept=on,vmx-desc-exit=on,vmx-rdtscp-exit=on,vmx-apicv-x2apic=on,vmx-vpid=on,vmx-wbinvd-exit=on,vmx-unrestricted-guest=on,vmx-rdrand-exit=on,vmx-invpcid-exit=on,vmx-vmfunc=on,vmx-shadow-vmcs=on,vmx-rdseed-exit=on,vmx-pml=on,vmx-xsaves=on,vmx-invvpid=on,vmx-invvpid-single-addr=on,vmx-invvpid-all-context=on,vmx-ept-execonly=on,vmx-page-walk-4=on,vmx-ept-2mb=on,vmx-ept-1gb=on,vmx-invept=on,vmx-eptad=on,vmx-invept-single-context=on,vmx-invept-all-context=on,vmx-intr-exit=on,vmx-nmi-exit=on,vmx-vnmi=on,vmx-preemption-timer=on,vmx-vintr-pending=on,vmx-tsc-offset=on,vmx-hlt-exit=on,vmx-invlpg-exit=on,vmx-mwait-exit=on,vmx-rdpmc-exit=on,vmx-rdtsc-exit=on,vmx-cr3-load-noexit=on,vmx-cr3-store-noexit=on,vmx-cr8-load-exit=on,vmx-cr8-store-exit=on,vmx-flexpriority=on,vmx-vnmi-pending=on,vmx-movdr-exit=on,vmx-io-exit=on,vmx-io-bitmap=on,vmx-mtf=on,vmx-msr-bitmap=on,vmx-monitor-exit=on,vmx-pause-exit=on,vmx-secondary-ctls=on,vmx-exit-nosave-debugctl=on,vmx-exit-ack-intr=on,vmx-exit-save-pat=on,vmx-exit-load-pat=on,vmx-exit-save-efer=on,vmx-exit-load-efer=on,vmx-exit-save-preemption-timer=on,vmx-entry-noload-debugctl=on,vmx-entry-ia32e-mode=on,vmx-entry-load-pat=on,vmx-entry-load-efer=on,vmx-eptp-switching=on \
+ -m size=219136k \
+ -overcommit mem-lock=off \
+ -smp 6,sockets=6,cores=1,threads=1 \
+diff --git a/tests/qemuxml2argvdata/cpu-host-model-kvm.x86_64-4.2.0.args b/tests/qemuxml2argvdata/cpu-host-model-kvm.x86_64-4.2.0.args
+index aacba803e8..13cade3398 100644
+--- a/tests/qemuxml2argvdata/cpu-host-model-kvm.x86_64-4.2.0.args
++++ b/tests/qemuxml2argvdata/cpu-host-model-kvm.x86_64-4.2.0.args
+@@ -12,7 +12,7 @@ XDG_CONFIG_HOME=/var/lib/libvirt/qemu/domain--1-QEMUGuest1/.config \
+ -object secret,id=masterKey0,format=raw,file=/var/lib/libvirt/qemu/domain--1-QEMUGuest1/master-key.aes \
+ -machine pc-q35-4.2,usb=off,dump-guest-core=off \
+ -accel kvm \
+--cpu Skylake-Client-IBRS,ss=on,vmx=on,hypervisor=on,tsc-adjust=on,clflushopt=on,umip=on,md-clear=on,stibp=on,arch-capabilities=on,ssbd=on,xsaves=on,pdpe1gb=on,skip-l1dfl-vmentry=on,pschange-mc-no=on,vmx-ins-outs=on,vmx-true-ctls=on,vmx-store-lma=on,vmx-activity-hlt=on,vmx-vmwrite-vmexit-fields=on,vmx-apicv-xapic=on,vmx-ept=on,vmx-desc-exit=on,vmx-rdtscp-exit=on,vmx-apicv-x2apic=on,vmx-vpid=on,vmx-wbinvd-exit=on,vmx-unrestricted-guest=on,vmx-rdrand-exit=on,vmx-invpcid-exit=on,vmx-vmfunc=on,vmx-shadow-vmcs=on,vmx-rdseed-exit=on,vmx-pml=on,vmx-xsaves=on,vmx-invvpid=on,vmx-invvpid-single-addr=on,vmx-invvpid-all-context=on,vmx-ept-execonly=on,vmx-page-walk-4=on,vmx-ept-2mb=on,vmx-ept-1gb=on,vmx-invept=on,vmx-eptad=on,vmx-invept-single-context=on,vmx-invept-all-context=on,vmx-intr-exit=on,vmx-nmi-exit=on,vmx-vnmi=on,vmx-preemption-timer=on,vmx-vintr-pending=on,vmx-tsc-offset=on,vmx-hlt-exit=on,vmx-invlpg-exit=on,vmx-mwait-exit=on,vmx-rdpmc-exit=on,vmx-rdtsc-exit=on,vmx-cr3-load-noexit=on,vmx-cr3-store-noexit=on,vmx-cr8-load-exit=on,vmx-cr8-store-exit=on,vmx-flexpriority=on,vmx-vnmi-pending=on,vmx-movdr-exit=on,vmx-io-exit=on,vmx-io-bitmap=on,vmx-mtf=on,vmx-msr-bitmap=on,vmx-monitor-exit=on,vmx-pause-exit=on,vmx-secondary-ctls=on,vmx-exit-nosave-debugctl=on,vmx-exit-ack-intr=on,vmx-exit-save-pat=on,vmx-exit-load-pat=on,vmx-exit-save-efer=on,vmx-exit-load-efer=on,vmx-exit-save-preemption-timer=on,vmx-entry-noload-debugctl=on,vmx-entry-ia32e-mode=on,vmx-entry-load-pat=on,vmx-entry-load-efer=on,vmx-eptp-switching=on \
++-cpu Skylake-Client-IBRS,ss=on,vmx=on,hypervisor=on,tsc-adjust=on,mpx=on,clflushopt=on,umip=on,md-clear=on,stibp=on,arch-capabilities=on,ssbd=on,xsaves=on,pdpe1gb=on,skip-l1dfl-vmentry=on,pschange-mc-no=on,vmx-ins-outs=on,vmx-true-ctls=on,vmx-store-lma=on,vmx-activity-hlt=on,vmx-vmwrite-vmexit-fields=on,vmx-apicv-xapic=on,vmx-ept=on,vmx-desc-exit=on,vmx-rdtscp-exit=on,vmx-apicv-x2apic=on,vmx-vpid=on,vmx-wbinvd-exit=on,vmx-unrestricted-guest=on,vmx-rdrand-exit=on,vmx-invpcid-exit=on,vmx-vmfunc=on,vmx-shadow-vmcs=on,vmx-rdseed-exit=on,vmx-pml=on,vmx-xsaves=on,vmx-invvpid=on,vmx-invvpid-single-addr=on,vmx-invvpid-all-context=on,vmx-ept-execonly=on,vmx-page-walk-4=on,vmx-ept-2mb=on,vmx-ept-1gb=on,vmx-invept=on,vmx-eptad=on,vmx-invept-single-context=on,vmx-invept-all-context=on,vmx-intr-exit=on,vmx-nmi-exit=on,vmx-vnmi=on,vmx-preemption-timer=on,vmx-vintr-pending=on,vmx-tsc-offset=on,vmx-hlt-exit=on,vmx-invlpg-exit=on,vmx-mwait-exit=on,vmx-rdpmc-exit=on,vmx-rdtsc-exit=on,vmx-cr3-load-noexit=on,vmx-cr3-store-noexit=on,vmx-cr8-load-exit=on,vmx-cr8-store-exit=on,vmx-flexpriority=on,vmx-vnmi-pending=on,vmx-movdr-exit=on,vmx-io-exit=on,vmx-io-bitmap=on,vmx-mtf=on,vmx-msr-bitmap=on,vmx-monitor-exit=on,vmx-pause-exit=on,vmx-secondary-ctls=on,vmx-exit-nosave-debugctl=on,vmx-exit-ack-intr=on,vmx-exit-save-pat=on,vmx-exit-load-pat=on,vmx-exit-save-efer=on,vmx-exit-load-efer=on,vmx-exit-save-preemption-timer=on,vmx-entry-noload-debugctl=on,vmx-entry-ia32e-mode=on,vmx-entry-load-pat=on,vmx-entry-load-efer=on,vmx-eptp-switching=on \
+ -m size=219136k \
+ -overcommit mem-lock=off \
+ -smp 1,sockets=1,cores=1,threads=1 \
+diff --git a/tests/qemuxml2argvdata/cpu-host-model-kvm.x86_64-5.0.0.args b/tests/qemuxml2argvdata/cpu-host-model-kvm.x86_64-5.0.0.args
+index a2415bb667..7c9a29f5de 100644
+--- a/tests/qemuxml2argvdata/cpu-host-model-kvm.x86_64-5.0.0.args
++++ b/tests/qemuxml2argvdata/cpu-host-model-kvm.x86_64-5.0.0.args
+@@ -12,7 +12,7 @@ XDG_CONFIG_HOME=/var/lib/libvirt/qemu/domain--1-QEMUGuest1/.config \
+ -object secret,id=masterKey0,format=raw,file=/var/lib/libvirt/qemu/domain--1-QEMUGuest1/master-key.aes \
+ -machine pc-q35-5.0,usb=off,dump-guest-core=off \
+ -accel kvm \
+--cpu Skylake-Client-IBRS,ss=on,vmx=on,hypervisor=on,tsc-adjust=on,clflushopt=on,umip=on,md-clear=on,stibp=on,arch-capabilities=on,ssbd=on,xsaves=on,pdpe1gb=on,skip-l1dfl-vmentry=on,pschange-mc-no=on,vmx-ins-outs=on,vmx-true-ctls=on,vmx-store-lma=on,vmx-activity-hlt=on,vmx-vmwrite-vmexit-fields=on,vmx-apicv-xapic=on,vmx-ept=on,vmx-desc-exit=on,vmx-rdtscp-exit=on,vmx-apicv-x2apic=on,vmx-vpid=on,vmx-wbinvd-exit=on,vmx-unrestricted-guest=on,vmx-rdrand-exit=on,vmx-invpcid-exit=on,vmx-vmfunc=on,vmx-shadow-vmcs=on,vmx-rdseed-exit=on,vmx-pml=on,vmx-xsaves=on,vmx-invvpid=on,vmx-invvpid-single-addr=on,vmx-invvpid-all-context=on,vmx-ept-execonly=on,vmx-page-walk-4=on,vmx-ept-2mb=on,vmx-ept-1gb=on,vmx-invept=on,vmx-eptad=on,vmx-invept-single-context=on,vmx-invept-all-context=on,vmx-intr-exit=on,vmx-nmi-exit=on,vmx-vnmi=on,vmx-preemption-timer=on,vmx-vintr-pending=on,vmx-tsc-offset=on,vmx-hlt-exit=on,vmx-invlpg-exit=on,vmx-mwait-exit=on,vmx-rdpmc-exit=on,vmx-rdtsc-exit=on,vmx-cr3-load-noexit=on,vmx-cr3-store-noexit=on,vmx-cr8-load-exit=on,vmx-cr8-store-exit=on,vmx-flexpriority=on,vmx-vnmi-pending=on,vmx-movdr-exit=on,vmx-io-exit=on,vmx-io-bitmap=on,vmx-mtf=on,vmx-msr-bitmap=on,vmx-monitor-exit=on,vmx-pause-exit=on,vmx-secondary-ctls=on,vmx-exit-nosave-debugctl=on,vmx-exit-ack-intr=on,vmx-exit-save-pat=on,vmx-exit-load-pat=on,vmx-exit-save-efer=on,vmx-exit-load-efer=on,vmx-exit-save-preemption-timer=on,vmx-entry-noload-debugctl=on,vmx-entry-ia32e-mode=on,vmx-entry-load-pat=on,vmx-entry-load-efer=on,vmx-eptp-switching=on \
++-cpu Skylake-Client-IBRS,ss=on,vmx=on,hypervisor=on,tsc-adjust=on,mpx=on,clflushopt=on,umip=on,md-clear=on,stibp=on,arch-capabilities=on,ssbd=on,xsaves=on,pdpe1gb=on,skip-l1dfl-vmentry=on,pschange-mc-no=on,vmx-ins-outs=on,vmx-true-ctls=on,vmx-store-lma=on,vmx-activity-hlt=on,vmx-vmwrite-vmexit-fields=on,vmx-apicv-xapic=on,vmx-ept=on,vmx-desc-exit=on,vmx-rdtscp-exit=on,vmx-apicv-x2apic=on,vmx-vpid=on,vmx-wbinvd-exit=on,vmx-unrestricted-guest=on,vmx-rdrand-exit=on,vmx-invpcid-exit=on,vmx-vmfunc=on,vmx-shadow-vmcs=on,vmx-rdseed-exit=on,vmx-pml=on,vmx-xsaves=on,vmx-invvpid=on,vmx-invvpid-single-addr=on,vmx-invvpid-all-context=on,vmx-ept-execonly=on,vmx-page-walk-4=on,vmx-ept-2mb=on,vmx-ept-1gb=on,vmx-invept=on,vmx-eptad=on,vmx-invept-single-context=on,vmx-invept-all-context=on,vmx-intr-exit=on,vmx-nmi-exit=on,vmx-vnmi=on,vmx-preemption-timer=on,vmx-vintr-pending=on,vmx-tsc-offset=on,vmx-hlt-exit=on,vmx-invlpg-exit=on,vmx-mwait-exit=on,vmx-rdpmc-exit=on,vmx-rdtsc-exit=on,vmx-cr3-load-noexit=on,vmx-cr3-store-noexit=on,vmx-cr8-load-exit=on,vmx-cr8-store-exit=on,vmx-flexpriority=on,vmx-vnmi-pending=on,vmx-movdr-exit=on,vmx-io-exit=on,vmx-io-bitmap=on,vmx-mtf=on,vmx-msr-bitmap=on,vmx-monitor-exit=on,vmx-pause-exit=on,vmx-secondary-ctls=on,vmx-exit-nosave-debugctl=on,vmx-exit-ack-intr=on,vmx-exit-save-pat=on,vmx-exit-load-pat=on,vmx-exit-save-efer=on,vmx-exit-load-efer=on,vmx-exit-save-preemption-timer=on,vmx-entry-noload-debugctl=on,vmx-entry-ia32e-mode=on,vmx-entry-load-pat=on,vmx-entry-load-efer=on,vmx-eptp-switching=on \
+ -m size=219136k \
+ -overcommit mem-lock=off \
+ -smp 1,sockets=1,cores=1,threads=1 \
+diff --git a/tests/qemuxml2argvdata/cpu-host-model-nofallback-kvm.x86_64-4.2.0.args b/tests/qemuxml2argvdata/cpu-host-model-nofallback-kvm.x86_64-4.2.0.args
+index f5f0e818af..d8ae902da1 100644
+--- a/tests/qemuxml2argvdata/cpu-host-model-nofallback-kvm.x86_64-4.2.0.args
++++ b/tests/qemuxml2argvdata/cpu-host-model-nofallback-kvm.x86_64-4.2.0.args
+@@ -12,7 +12,7 @@ XDG_CONFIG_HOME=/var/lib/libvirt/qemu/domain--1-QEMUGuest1/.config \
+ -object secret,id=masterKey0,format=raw,file=/var/lib/libvirt/qemu/domain--1-QEMUGuest1/master-key.aes \
+ -machine pc-i440fx-4.2,usb=off,dump-guest-core=off \
+ -accel kvm \
+--cpu Skylake-Client-IBRS,ss=on,vmx=on,hypervisor=on,tsc-adjust=on,clflushopt=on,umip=on,md-clear=on,stibp=on,arch-capabilities=on,ssbd=on,xsaves=on,pdpe1gb=on,skip-l1dfl-vmentry=on,pschange-mc-no=on,vmx-ins-outs=on,vmx-true-ctls=on,vmx-store-lma=on,vmx-activity-hlt=on,vmx-vmwrite-vmexit-fields=on,vmx-apicv-xapic=on,vmx-ept=on,vmx-desc-exit=on,vmx-rdtscp-exit=on,vmx-apicv-x2apic=on,vmx-vpid=on,vmx-wbinvd-exit=on,vmx-unrestricted-guest=on,vmx-rdrand-exit=on,vmx-invpcid-exit=on,vmx-vmfunc=on,vmx-shadow-vmcs=on,vmx-rdseed-exit=on,vmx-pml=on,vmx-xsaves=on,vmx-invvpid=on,vmx-invvpid-single-addr=on,vmx-invvpid-all-context=on,vmx-ept-execonly=on,vmx-page-walk-4=on,vmx-ept-2mb=on,vmx-ept-1gb=on,vmx-invept=on,vmx-eptad=on,vmx-invept-single-context=on,vmx-invept-all-context=on,vmx-intr-exit=on,vmx-nmi-exit=on,vmx-vnmi=on,vmx-preemption-timer=on,vmx-vintr-pending=on,vmx-tsc-offset=on,vmx-hlt-exit=on,vmx-invlpg-exit=on,vmx-mwait-exit=on,vmx-rdpmc-exit=on,vmx-rdtsc-exit=on,vmx-cr3-load-noexit=on,vmx-cr3-store-noexit=on,vmx-cr8-load-exit=on,vmx-cr8-store-exit=on,vmx-flexpriority=on,vmx-vnmi-pending=on,vmx-movdr-exit=on,vmx-io-exit=on,vmx-io-bitmap=on,vmx-mtf=on,vmx-msr-bitmap=on,vmx-monitor-exit=on,vmx-pause-exit=on,vmx-secondary-ctls=on,vmx-exit-nosave-debugctl=on,vmx-exit-ack-intr=on,vmx-exit-save-pat=on,vmx-exit-load-pat=on,vmx-exit-save-efer=on,vmx-exit-load-efer=on,vmx-exit-save-preemption-timer=on,vmx-entry-noload-debugctl=on,vmx-entry-ia32e-mode=on,vmx-entry-load-pat=on,vmx-entry-load-efer=on,vmx-eptp-switching=on \
++-cpu Skylake-Client-IBRS,ss=on,vmx=on,hypervisor=on,tsc-adjust=on,mpx=on,clflushopt=on,umip=on,md-clear=on,stibp=on,arch-capabilities=on,ssbd=on,xsaves=on,pdpe1gb=on,skip-l1dfl-vmentry=on,pschange-mc-no=on,vmx-ins-outs=on,vmx-true-ctls=on,vmx-store-lma=on,vmx-activity-hlt=on,vmx-vmwrite-vmexit-fields=on,vmx-apicv-xapic=on,vmx-ept=on,vmx-desc-exit=on,vmx-rdtscp-exit=on,vmx-apicv-x2apic=on,vmx-vpid=on,vmx-wbinvd-exit=on,vmx-unrestricted-guest=on,vmx-rdrand-exit=on,vmx-invpcid-exit=on,vmx-vmfunc=on,vmx-shadow-vmcs=on,vmx-rdseed-exit=on,vmx-pml=on,vmx-xsaves=on,vmx-invvpid=on,vmx-invvpid-single-addr=on,vmx-invvpid-all-context=on,vmx-ept-execonly=on,vmx-page-walk-4=on,vmx-ept-2mb=on,vmx-ept-1gb=on,vmx-invept=on,vmx-eptad=on,vmx-invept-single-context=on,vmx-invept-all-context=on,vmx-intr-exit=on,vmx-nmi-exit=on,vmx-vnmi=on,vmx-preemption-timer=on,vmx-vintr-pending=on,vmx-tsc-offset=on,vmx-hlt-exit=on,vmx-invlpg-exit=on,vmx-mwait-exit=on,vmx-rdpmc-exit=on,vmx-rdtsc-exit=on,vmx-cr3-load-noexit=on,vmx-cr3-store-noexit=on,vmx-cr8-load-exit=on,vmx-cr8-store-exit=on,vmx-flexpriority=on,vmx-vnmi-pending=on,vmx-movdr-exit=on,vmx-io-exit=on,vmx-io-bitmap=on,vmx-mtf=on,vmx-msr-bitmap=on,vmx-monitor-exit=on,vmx-pause-exit=on,vmx-secondary-ctls=on,vmx-exit-nosave-debugctl=on,vmx-exit-ack-intr=on,vmx-exit-save-pat=on,vmx-exit-load-pat=on,vmx-exit-save-efer=on,vmx-exit-load-efer=on,vmx-exit-save-preemption-timer=on,vmx-entry-noload-debugctl=on,vmx-entry-ia32e-mode=on,vmx-entry-load-pat=on,vmx-entry-load-efer=on,vmx-eptp-switching=on \
+ -m size=219136k \
+ -overcommit mem-lock=off \
+ -smp 6,sockets=6,cores=1,threads=1 \
+diff --git a/tests/qemuxml2argvdata/cpu-host-model-nofallback-kvm.x86_64-5.0.0.args b/tests/qemuxml2argvdata/cpu-host-model-nofallback-kvm.x86_64-5.0.0.args
+index 699f48fbaa..d0d82fc6a1 100644
+--- a/tests/qemuxml2argvdata/cpu-host-model-nofallback-kvm.x86_64-5.0.0.args
++++ b/tests/qemuxml2argvdata/cpu-host-model-nofallback-kvm.x86_64-5.0.0.args
+@@ -12,7 +12,7 @@ XDG_CONFIG_HOME=/var/lib/libvirt/qemu/domain--1-QEMUGuest1/.config \
+ -object secret,id=masterKey0,format=raw,file=/var/lib/libvirt/qemu/domain--1-QEMUGuest1/master-key.aes \
+ -machine pc-i440fx-5.0,usb=off,dump-guest-core=off \
+ -accel kvm \
+--cpu Skylake-Client-IBRS,ss=on,vmx=on,hypervisor=on,tsc-adjust=on,clflushopt=on,umip=on,md-clear=on,stibp=on,arch-capabilities=on,ssbd=on,xsaves=on,pdpe1gb=on,skip-l1dfl-vmentry=on,pschange-mc-no=on,vmx-ins-outs=on,vmx-true-ctls=on,vmx-store-lma=on,vmx-activity-hlt=on,vmx-vmwrite-vmexit-fields=on,vmx-apicv-xapic=on,vmx-ept=on,vmx-desc-exit=on,vmx-rdtscp-exit=on,vmx-apicv-x2apic=on,vmx-vpid=on,vmx-wbinvd-exit=on,vmx-unrestricted-guest=on,vmx-rdrand-exit=on,vmx-invpcid-exit=on,vmx-vmfunc=on,vmx-shadow-vmcs=on,vmx-rdseed-exit=on,vmx-pml=on,vmx-xsaves=on,vmx-invvpid=on,vmx-invvpid-single-addr=on,vmx-invvpid-all-context=on,vmx-ept-execonly=on,vmx-page-walk-4=on,vmx-ept-2mb=on,vmx-ept-1gb=on,vmx-invept=on,vmx-eptad=on,vmx-invept-single-context=on,vmx-invept-all-context=on,vmx-intr-exit=on,vmx-nmi-exit=on,vmx-vnmi=on,vmx-preemption-timer=on,vmx-vintr-pending=on,vmx-tsc-offset=on,vmx-hlt-exit=on,vmx-invlpg-exit=on,vmx-mwait-exit=on,vmx-rdpmc-exit=on,vmx-rdtsc-exit=on,vmx-cr3-load-noexit=on,vmx-cr3-store-noexit=on,vmx-cr8-load-exit=on,vmx-cr8-store-exit=on,vmx-flexpriority=on,vmx-vnmi-pending=on,vmx-movdr-exit=on,vmx-io-exit=on,vmx-io-bitmap=on,vmx-mtf=on,vmx-msr-bitmap=on,vmx-monitor-exit=on,vmx-pause-exit=on,vmx-secondary-ctls=on,vmx-exit-nosave-debugctl=on,vmx-exit-ack-intr=on,vmx-exit-save-pat=on,vmx-exit-load-pat=on,vmx-exit-save-efer=on,vmx-exit-load-efer=on,vmx-exit-save-preemption-timer=on,vmx-entry-noload-debugctl=on,vmx-entry-ia32e-mode=on,vmx-entry-load-pat=on,vmx-entry-load-efer=on,vmx-eptp-switching=on \
++-cpu Skylake-Client-IBRS,ss=on,vmx=on,hypervisor=on,tsc-adjust=on,mpx=on,clflushopt=on,umip=on,md-clear=on,stibp=on,arch-capabilities=on,ssbd=on,xsaves=on,pdpe1gb=on,skip-l1dfl-vmentry=on,pschange-mc-no=on,vmx-ins-outs=on,vmx-true-ctls=on,vmx-store-lma=on,vmx-activity-hlt=on,vmx-vmwrite-vmexit-fields=on,vmx-apicv-xapic=on,vmx-ept=on,vmx-desc-exit=on,vmx-rdtscp-exit=on,vmx-apicv-x2apic=on,vmx-vpid=on,vmx-wbinvd-exit=on,vmx-unrestricted-guest=on,vmx-rdrand-exit=on,vmx-invpcid-exit=on,vmx-vmfunc=on,vmx-shadow-vmcs=on,vmx-rdseed-exit=on,vmx-pml=on,vmx-xsaves=on,vmx-invvpid=on,vmx-invvpid-single-addr=on,vmx-invvpid-all-context=on,vmx-ept-execonly=on,vmx-page-walk-4=on,vmx-ept-2mb=on,vmx-ept-1gb=on,vmx-invept=on,vmx-eptad=on,vmx-invept-single-context=on,vmx-invept-all-context=on,vmx-intr-exit=on,vmx-nmi-exit=on,vmx-vnmi=on,vmx-preemption-timer=on,vmx-vintr-pending=on,vmx-tsc-offset=on,vmx-hlt-exit=on,vmx-invlpg-exit=on,vmx-mwait-exit=on,vmx-rdpmc-exit=on,vmx-rdtsc-exit=on,vmx-cr3-load-noexit=on,vmx-cr3-store-noexit=on,vmx-cr8-load-exit=on,vmx-cr8-store-exit=on,vmx-flexpriority=on,vmx-vnmi-pending=on,vmx-movdr-exit=on,vmx-io-exit=on,vmx-io-bitmap=on,vmx-mtf=on,vmx-msr-bitmap=on,vmx-monitor-exit=on,vmx-pause-exit=on,vmx-secondary-ctls=on,vmx-exit-nosave-debugctl=on,vmx-exit-ack-intr=on,vmx-exit-save-pat=on,vmx-exit-load-pat=on,vmx-exit-save-efer=on,vmx-exit-load-efer=on,vmx-exit-save-preemption-timer=on,vmx-entry-noload-debugctl=on,vmx-entry-ia32e-mode=on,vmx-entry-load-pat=on,vmx-entry-load-efer=on,vmx-eptp-switching=on \
+ -m size=219136k \
+ -overcommit mem-lock=off \
+ -smp 6,sockets=6,cores=1,threads=1 \
+-- 
+2.45.2
+

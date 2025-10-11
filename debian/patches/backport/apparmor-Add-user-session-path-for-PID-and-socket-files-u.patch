@@ -1,0 +1,46 @@
+From: Stefano Brivio <sbrivio@redhat.com>
+Date: Tue, 30 Jan 2024 19:15:51 +0100
+Subject: apparmor: Add user session path for PID and socket files used by
+ passt
+
+Commit 7a39b04d683f ("apparmor: Enable passt support") grants
+passt(1) read-write access to /{,var/}run/libvirt/qemu/passt/* if
+started by the libvirt daemon. That's the path where passt creates
+PID and socket files only if the guest is started by the root user.
+
+If the guest is started by another user, though, the path is more
+commonly /var/run/user/$UID/libvirt/qemu/run/passt: add it as
+read-write location. Otherwise, passt won't be able to start, as
+reported by Andreas.
+
+While at it, replace /{,var/}run/ in the existing rule by its
+corresponding tunable variable, @{run}.
+
+Fixes: 7a39b04d683f ("apparmor: Enable passt support")
+Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1061678
+Reported-by: Andreas B. Mundt <andi@debian.org>
+Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
+Reviewed-by: Andrea Bolognani <abologna@redhat.com>
+Reviewed-by: Jim Fehlig <jfehlig@suse.com>
+(cherry picked from commit f95675fdbb42eee07fc4864d7c135dcb8b00c3a9)
+
+Forwarded: not-needed
+Origin: https://gitlab.com/libvirt/libvirt/-/commit/f95675fdbb42eee07fc4864d7c135dcb8b00c3a9
+---
+ src/security/apparmor/libvirt-qemu.in | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/security/apparmor/libvirt-qemu.in b/src/security/apparmor/libvirt-qemu.in
+index f40f471..8b92915 100644
+--- a/src/security/apparmor/libvirt-qemu.in
++++ b/src/security/apparmor/libvirt-qemu.in
+@@ -196,7 +196,8 @@
+     signal (receive) set=("term") peer=libvirtd,
+     signal (receive) set=("term") peer=virtqemud,
+ 
+-    owner /{,var/}run/libvirt/qemu/passt/* rw,
++    owner @{run}/user/[0-9]*/libvirt/qemu/run/passt/* rw,
++    owner @{run}/libvirt/qemu/passt/* rw,
+ 
+     include if exists <abstractions/passt>
+   }

@@ -1,0 +1,41 @@
+From a57195e79efc9208fa4bc55439b9b798d2e3de50 Mon Sep 17 00:00:00 2001
+From: Michal Privoznik <mprivozn@redhat.com>
+Date: Wed, 29 May 2024 09:24:44 +0200
+Subject: [PATCH] log_cleaner: Detect rotated filenames properly
+
+When removing rotated log files, their name is matched against a
+regex (@log_regex) and if they contain '.N' suffix the 'N' is
+then parsed into an integer. Well, due to a bug in
+virLogCleanerParseFilename() this is not how the code works. If
+the suffix isn't found then g_match_info_fetch() returns an empty
+string instead of NULL which then makes str2int parsing fail.
+Just check for this case before parsing the string.
+
+Based on the original patch sent by David.
+
+Reported-by: David Negreira <david.negreira@canonical.com>
+Signed-off-by: Michal Privoznik <mprivozn@redhat.com>
+Reviewed-by: Jiri Denemark <jdenemar@redhat.com>
+Origin: upstream, https://gitlab.com/libvirt/libvirt/-/commit/a57195e79efc
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/libvirt/+bug/2072647
+---
+ src/logging/log_cleaner.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+Index: libvirt-10.0.0/src/logging/log_cleaner.c
+===================================================================
+--- libvirt-10.0.0.orig/src/logging/log_cleaner.c
++++ libvirt-10.0.0/src/logging/log_cleaner.c
+@@ -82,10 +82,8 @@ virLogCleanerParseFilename(const char *p
+     *rotated_index = 0;
+     rotated_index_str = g_match_info_fetch(matchInfo, 3);
+ 
+-    if (!rotated_index_str)
+-        return chain_prefix;
+-
+-    if (virStrToLong_i(rotated_index_str, NULL, 10, rotated_index) < 0) {
++    if (rotated_index_str && STRNEQ(rotated_index_str, "") &&
++        virStrToLong_i(rotated_index_str, NULL, 10, rotated_index) < 0) {
+         virReportError(VIR_ERR_INTERNAL_ERROR,
+                        _("Failed to parse rotated index from '%1$s'"),
+                        rotated_index_str);

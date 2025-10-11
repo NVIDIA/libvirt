@@ -1,0 +1,44 @@
+From: Felix Geyer <fgeyer@debian.org>
+Date: Tue, 11 Aug 2015 07:25:01 +0200
+Subject: apparmor_profiles_local_include
+
+Include local apparmor profile
+
+Forwarded: not-needed
+---
+ src/security/apparmor/libvirt-lxc.in  | 7 +++++++
+ src/security/apparmor/libvirt-qemu.in | 7 +++++++
+ 2 files changed, 14 insertions(+)
+
+diff --git a/src/security/apparmor/libvirt-lxc.in b/src/security/apparmor/libvirt-lxc.in
+index ffe4d8f..2973b00 100644
+--- a/src/security/apparmor/libvirt-lxc.in
++++ b/src/security/apparmor/libvirt-lxc.in
+@@ -119,4 +119,11 @@
+ 
+ @BEGIN_APPARMOR_3@
+   include if exists <abstractions/libvirt-lxc.d>
++
++  ### DEPRECATED ###
++  # Debian-specific override file
++  # Please use <abstractions/libvirt-lxc.d/...> instead
++  # Support for this override will be removed in a future release
++  ### DEPRECATED ###
++  include if exists <local/abstractions/libvirt-lxc>
+ @END_APPARMOR_3@
+diff --git a/src/security/apparmor/libvirt-qemu.in b/src/security/apparmor/libvirt-qemu.in
+index 8b92915..3a6b964 100644
+--- a/src/security/apparmor/libvirt-qemu.in
++++ b/src/security/apparmor/libvirt-qemu.in
+@@ -278,4 +278,11 @@
+ 
+ @BEGIN_APPARMOR_3@
+   include if exists <abstractions/libvirt-qemu.d>
++
++  ### DEPRECATED ###
++  # Debian-specific override file
++  # Please use <abstractions/libvirt-qemu.d/...> instead
++  # Support for this override will be removed in a future release
++  ### DEPRECATED ###
++  include if exists <local/abstractions/libvirt-qemu>
+ @END_APPARMOR_3@
