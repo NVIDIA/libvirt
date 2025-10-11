@@ -1,0 +1,41 @@
+From: Michal Privoznik <mprivozn@redhat.com>
+Date: Mon, 29 Jan 2024 10:07:05 +0100
+Subject: remote_driver: Restore special behavior of
+ remoteDomainGetBlockIoTune()
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+In v9.10.0-rc1~103 the remote driver was switched to g_auto() for
+client RPC return parameters. But whilst doing so a small bug
+slipped in: previously, when virDomainGetBlockIoTune() was called
+with *nparams == 0, the function set *nparams to the number of
+supported params and zero was returned (so that client can
+allocate memory and call the API second time). IOW - the usual,
+old style of APIs where we didn't want to allocate memory on
+caller's behalf. But because of this bug, a negative one is
+returned instead.
+
+Fixes: 501825011c1fe80f458820c7efe5a198e0af9be5
+Signed-off-by: Michal Privoznik <mprivozn@redhat.com>
+Reviewed-by: Ján Tomko <jtomko@redhat.com>
+
+Origin: upstream, https://gitlab.com/libvirt/libvirt/-/commit/3a3f73ea9f1925ca5e256fa54c5aa451ddeaa19e
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/libvirt/+bug/2084136
+---
+ src/remote/remote_driver.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/remote/remote_driver.c b/src/remote/remote_driver.c
+index 392377d..bedf2cb 100644
+--- a/src/remote/remote_driver.c
++++ b/src/remote/remote_driver.c
+@@ -2570,7 +2570,7 @@ static int remoteDomainGetBlockIoTune(virDomainPtr domain,
+      */
+     if (*nparams == 0) {
+         *nparams = ret.nparams;
+-        return -1;
++        return 0;
+     }
+ 
+     if (virTypedParamsDeserialize((struct _virTypedParameterRemote *) ret.params.params_val,

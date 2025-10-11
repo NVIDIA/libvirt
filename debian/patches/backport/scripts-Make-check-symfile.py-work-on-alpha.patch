@@ -1,0 +1,58 @@
+From: Andrea Bolognani <abologna@redhat.com>
+Date: Sat, 20 Jan 2024 18:20:21 +0100
+Subject: scripts: Make check-symfile.py work on alpha
+
+The script expects each of the symbols that it looks for to
+be in one of three sections, which in nm(1) are described as
+follows:
+
+  T - The symbol is in the text (code) section.
+  B - The symbol is in the BSS data section. This section
+      typically contains zero-initialized or uninitialized
+      data, although the exact behavior is system dependent.
+  D - The symbol is in the initialized data section.
+
+When building on alpha, however, some of the symbols show up
+in one of two additional sections, specifically:
+
+  S - The symbol is in an uninitialized or zero-initialized
+      data section for small objects.
+  G - The symbol is in an initialized data section for small
+      objects.
+
+In other words, S is the same as B and G is the same as D,
+except with some optimization for small objects that for some
+reason is applied on alpha but not on other architectures.
+
+I have confirmed that, for all the symbols that the script
+complained about being missing on alpha, the section is the
+expected one, that is, symbols that are reported as B on x86
+are reported as S on alpha, and symbols that are reported as
+D on x86 are reported as G on alpha.
+
+Note that, while the B section doesn't seem to be used at all
+on alpha, at least in our case, the D section still is.
+
+Signed-off-by: Andrea Bolognani <abologna@redhat.com>
+Reviewed-by: Michal Privoznik <mprivozn@redhat.com>
+(cherry picked from commit 2757e91c2b28b704d9a0b586fb60012450110b1a)
+
+Forwarded: not-needed
+Origin: https://gitlab.com/libvirt/libvirt/-/commit/2757e91c2b28b704d9a0b586fb60012450110b1a
+---
+ scripts/check-symfile.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/scripts/check-symfile.py b/scripts/check-symfile.py
+index 0f6e780..c2ee405 100755
+--- a/scripts/check-symfile.py
++++ b/scripts/check-symfile.py
+@@ -61,7 +61,7 @@ for elflib in elflibs:
+ 
+     for line in nm:
+         line = line.decode("utf-8")
+-        symmatch = re.search(r'''^\S+\s(?:[TBD])\s(\S+)\s*$''', line)
++        symmatch = re.search(r'''^\S+\s(?:[TBSDG])\s(\S+)\s*$''', line)
+         if symmatch is None:
+             continue
+ 
