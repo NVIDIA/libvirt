@@ -1,0 +1,3 @@
+# Customizations for the virtlockd.service systemd unit
+
+#VIRTLOCKD_ARGS=""

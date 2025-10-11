@@ -1,0 +1,50 @@
+From: Guido Guenther <agx@sigxcpu.org>
+Date: Thu, 26 Jun 2008 20:01:38 +0200
+Subject: Allow libvirt group to access the socket
+Forwarded: no
+Updated: 2020-08-05
+
+This is the group based access to libvirt functions as it was used
+in Ubuntu for quite long.
+
+Debian uses root + policykit for the same. But since Ubuntu did it
+the group based way for so long people are used to that, so we keep it.
+
+There are some related tests (if augeas is enabled as build depend) that need
+to be adapted in their expected output, that is done in:
+ d/p/ubuntu/daemon-augeas-fix-expected.patch
+
+
+--- libvirt.orig/src/remote/libvirtd.conf.in	2024-01-12 15:03:56.073753030 -0500
++++ libvirt/src/remote/libvirtd.conf.in	2024-01-12 15:03:56.073753030 -0500
+@@ -166,7 +166,7 @@
+ #
+ # To restrict monitoring of domains you may wish to either
+ # enable 'sasl' here, or change the polkit policy definition.
+-#auth_unix_ro = "@default_auth@"
++auth_unix_ro = "none"
+ 
+ # Set an authentication scheme for UNIX read-write sockets.
+ #
+@@ -182,7 +182,7 @@
+ # is essential to change the systemd SocketMode parameter
+ # back to 0600, to avoid an insecure configuration.
+ #
+-#auth_unix_rw = "@default_auth@"
++auth_unix_rw = "none"
+ @CUT_ENABLE_IP@
+ 
+ # Change the authentication scheme for TCP sockets.
+--- libvirt.orig/src/remote/libvirtd.socket.in	2024-01-12 15:03:56.073753030 -0500
++++ libvirt/src/remote/libvirtd.socket.in	2024-01-12 15:04:52.681162551 -0500
+@@ -4,7 +4,9 @@ Description=libvirt legacy monolithic da
+ [Socket]
+ ListenStream=@runstatedir@/libvirt/libvirt-sock
+ Service=libvirtd.service
+-SocketMode=@sockmode@
++SocketMode=0660
++SocketUser=root
++SocketGroup=libvirt
+ RemoveOnStop=yes
+ 
+ [Install]

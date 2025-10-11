@@ -1,0 +1,49 @@
+From: Michal Privoznik <mprivozn@redhat.com>
+Date: Tue, 25 Feb 2025 11:01:04 +0100
+Subject: apparmor: Allow SGX if configured
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+If SGX memory model is configured for domain then we need to
+allow QEMU access some additional files:
+
+  1) /dev/sgx_vepc needs to be RW
+  2) /dev/sgx_provision needs to be RO
+
+We already do this in SELinux driver but not in AppArmor.
+
+Resolves: https://gitlab.com/libvirt/libvirt/-/issues/751
+
+Signed-off-by: Michal Privoznik <mprivozn@redhat.com>
+Reviewed-by: Ján Tomko <jtomko@redhat.com>
+
+Origin: upstream, https://gitlab.com/libvirt/libvirt/-/commit/291186daa39c7be8ac2960130dfd70cc8c62bb99
+Bug: https://gitlab.com/libvirt/libvirt/-/issues/751
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/libvirt/+bug/2100024
+Last-Update: 2025-03-05
+---
+ src/security/virt-aa-helper.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/src/security/virt-aa-helper.c b/src/security/virt-aa-helper.c
+index ecea2b5..fab2fdd 100644
+--- a/src/security/virt-aa-helper.c
++++ b/src/security/virt-aa-helper.c
+@@ -1152,9 +1152,15 @@ get_files(vahControl * ctl)
+             if (vah_add_file(&buf, mem->source.virtio_pmem.path, "rw") != 0)
+                 goto cleanup;
+             break;
++        case VIR_DOMAIN_MEMORY_MODEL_SGX_EPC:
++            if (vah_add_file(&buf, DEV_SGX_VEPC, "rw") != 0 ||
++                vah_add_file(&buf, DEV_SGX_PROVISION, "r") != 0) {
++                goto cleanup;
++            }
++            break;
++
+         case VIR_DOMAIN_MEMORY_MODEL_DIMM:
+         case VIR_DOMAIN_MEMORY_MODEL_VIRTIO_MEM:
+-        case VIR_DOMAIN_MEMORY_MODEL_SGX_EPC:
+         case VIR_DOMAIN_MEMORY_MODEL_NONE:
+         case VIR_DOMAIN_MEMORY_MODEL_LAST:
+             break;
