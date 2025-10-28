@@ -5818,6 +5818,12 @@ qemuValidateDomainDeviceDefMemory(const virDomainMemoryDef *mem,
 
         break;
 
+    case VIR_DOMAIN_MEMORY_MODEL_EGM:
+        if (!virQEMUCapsGet(qemuCaps, QEMU_CAPS_DEVICE_ACPI_EGM_MEMORY)) {
+            virReportError(VIR_ERR_CONFIG_UNSUPPORTED, "%s",
+                          _("ACPI EGM memory device is not supported with this QEMU binary"));
+            return -1;
+        }
     case VIR_DOMAIN_MEMORY_MODEL_NONE:
     case VIR_DOMAIN_MEMORY_MODEL_LAST:
         break;
