@@ -4156,6 +4156,7 @@ qemuProcessDomainMemoryDefNeedHugepagesPath(const virDomainMemoryDef *mem,
     case VIR_DOMAIN_MEMORY_MODEL_VIRTIO_MEM:
         pagesize = mem->source.virtio_mem.pagesize;
         break;
+    case VIR_DOMAIN_MEMORY_MODEL_EGM:
     case VIR_DOMAIN_MEMORY_MODEL_NONE:
     case VIR_DOMAIN_MEMORY_MODEL_NVDIMM:
     case VIR_DOMAIN_MEMORY_MODEL_VIRTIO_PMEM:
@@ -4245,6 +4246,7 @@ qemuProcessNeedMemoryBackingPath(virDomainDef *def,
         case VIR_DOMAIN_MEMORY_MODEL_NVDIMM:
         case VIR_DOMAIN_MEMORY_MODEL_VIRTIO_PMEM:
         case VIR_DOMAIN_MEMORY_MODEL_SGX_EPC:
+        case VIR_DOMAIN_MEMORY_MODEL_EGM:
         case VIR_DOMAIN_MEMORY_MODEL_LAST:
             /* Backed by user provided path. Not stored in memory
              * backing dir anyway. */

@@ -3124,6 +3124,7 @@ qemuDomainAssignMemoryDeviceSlot(virDomainObj *vm,
         return qemuDomainEnsureVirtioAddress(&releaseaddr, vm, &dev);
 
     case VIR_DOMAIN_MEMORY_MODEL_SGX_EPC:
+    case VIR_DOMAIN_MEMORY_MODEL_EGM:
     case VIR_DOMAIN_MEMORY_MODEL_NONE:
     case VIR_DOMAIN_MEMORY_MODEL_LAST:
         break;
@@ -3151,6 +3152,7 @@ qemuDomainReleaseMemoryDeviceSlot(virDomainObj *vm,
         break;
 
     case VIR_DOMAIN_MEMORY_MODEL_SGX_EPC:
+    case VIR_DOMAIN_MEMORY_MODEL_EGM:
     case VIR_DOMAIN_MEMORY_MODEL_NONE:
     case VIR_DOMAIN_MEMORY_MODEL_LAST:
         break;
@@ -3185,6 +3187,7 @@ qemuDomainAssignMemorySlots(virDomainDef *def)
             /* handled in qemuDomainAssignPCIAddresses() */
             break;
         case VIR_DOMAIN_MEMORY_MODEL_SGX_EPC:
+        case VIR_DOMAIN_MEMORY_MODEL_EGM:
         case VIR_DOMAIN_MEMORY_MODEL_NONE:
         case VIR_DOMAIN_MEMORY_MODEL_LAST:
             break;

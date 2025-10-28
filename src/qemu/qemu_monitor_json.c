@@ -7213,6 +7213,7 @@ qemuMonitorJSONGetMemoryDeviceInfo(qemuMonitor *mon,
         switch ((virDomainMemoryModel) model) {
         case VIR_DOMAIN_MEMORY_MODEL_DIMM:
         case VIR_DOMAIN_MEMORY_MODEL_NVDIMM:
+        case VIR_DOMAIN_MEMORY_MODEL_EGM:
         case VIR_DOMAIN_MEMORY_MODEL_VIRTIO_MEM:
         case VIR_DOMAIN_MEMORY_MODEL_VIRTIO_PMEM:
             /* While 'id' attribute is marked as optional in QEMU's QAPI
