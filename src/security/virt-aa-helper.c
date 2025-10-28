@@ -1197,6 +1197,10 @@ get_files(vahControl * ctl)
                 return -1;
             }
             break;
+        case VIR_DOMAIN_MEMORY_MODEL_EGM:
+            if (vah_add_file(&buf, mem->source.egm.path, "rw") != 0)
+                return -1;
+            break;
 
         case VIR_DOMAIN_MEMORY_MODEL_DIMM:
         case VIR_DOMAIN_MEMORY_MODEL_VIRTIO_MEM:
