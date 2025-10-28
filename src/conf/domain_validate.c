@@ -2564,6 +2564,7 @@ virDomainMemoryDefCheckConflict(const virDomainMemoryDef *mem,
         }
         break;
     case VIR_DOMAIN_MEMORY_MODEL_SGX_EPC:
+    case VIR_DOMAIN_MEMORY_MODEL_EGM:
     case VIR_DOMAIN_MEMORY_MODEL_NONE:
     case VIR_DOMAIN_MEMORY_MODEL_LAST:
         break;
@@ -2610,6 +2611,7 @@ virDomainMemoryDefCheckConflict(const virDomainMemoryDef *mem,
         switch (other->model) {
         case VIR_DOMAIN_MEMORY_MODEL_NONE:
         case VIR_DOMAIN_MEMORY_MODEL_SGX_EPC:
+        case VIR_DOMAIN_MEMORY_MODEL_EGM:
         case VIR_DOMAIN_MEMORY_MODEL_LAST:
             continue;
             break;
@@ -2786,6 +2788,19 @@ virDomainMemoryDefValidate(const virDomainMemoryDef *mem,
             virReportError(VIR_ERR_CONFIG_UNSUPPORTED,
                            _("memory device address is not supported for model '%1$s'"),
                            virDomainMemoryModelTypeToString(mem->model));
+            return -1;
+        }
+        break;
+
+    case VIR_DOMAIN_MEMORY_MODEL_EGM:
+        if (!mem->source.egm.path) {
+            virReportError(VIR_ERR_XML_DETAIL, "%s",
+                           _("path is required for model 'egm'"));
+            return -1;
+        }
+        if (!mem->target.egm.pciDev) {
+            virReportError(VIR_ERR_XML_DETAIL, "%s",
+                           _("pciDev is required for model 'egm'"));
             return -1;
         }
         break;
