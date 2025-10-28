@@ -1650,6 +1650,9 @@ virSecuritySELinuxSetMemoryLabel(virSecurityManager *mgr,
                                          seclabel->imagelabel, true) < 0)
             return -1;
         break;
+    case VIR_DOMAIN_MEMORY_MODEL_EGM:
+        path = mem->source.egm.path;
+        break;
 
     case VIR_DOMAIN_MEMORY_MODEL_NONE:
     case VIR_DOMAIN_MEMORY_MODEL_DIMM:
@@ -1693,6 +1696,9 @@ virSecuritySELinuxRestoreMemoryLabel(virSecurityManager *mgr,
         if (virSecuritySELinuxRestoreFileLabel(mgr, DEV_SGX_PROVISION, true) < 0)
             ret = -1;
         return ret;
+    case VIR_DOMAIN_MEMORY_MODEL_EGM:
+        path = mem->source.egm.path;
+        break;
 
     case VIR_DOMAIN_MEMORY_MODEL_DIMM:
     case VIR_DOMAIN_MEMORY_MODEL_VIRTIO_MEM:
