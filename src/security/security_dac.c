@@ -1919,6 +1919,9 @@ virSecurityDACRestoreMemoryLabel(virSecurityManager *mgr,
          * don't need to restore anything. */
         break;
 
+    case VIR_DOMAIN_MEMORY_MODEL_EGM:
+        return virSecurityDACRestoreFileLabel(mgr, mem->source.egm.path);
+
     case VIR_DOMAIN_MEMORY_MODEL_DIMM:
     case VIR_DOMAIN_MEMORY_MODEL_VIRTIO_MEM:
     case VIR_DOMAIN_MEMORY_MODEL_LAST:
@@ -2149,6 +2152,11 @@ virSecurityDACSetMemoryLabel(virSecurityManager *mgr,
                                         user, group, true) < 0))
             return -1;
         break;
+
+    case VIR_DOMAIN_MEMORY_MODEL_EGM:
+        return virSecurityDACSetOwnership(mgr, NULL,
+                                          mem->source.egm.path,
+                                          user, group, true);
 
     case VIR_DOMAIN_MEMORY_MODEL_DIMM:
     case VIR_DOMAIN_MEMORY_MODEL_VIRTIO_MEM:
