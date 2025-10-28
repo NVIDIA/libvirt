@@ -504,7 +504,8 @@ qemuDeviceMemoryGetAliasID(virDomainDef *def,
      * valid */
     if (mem->model != VIR_DOMAIN_MEMORY_MODEL_VIRTIO_PMEM &&
         mem->model != VIR_DOMAIN_MEMORY_MODEL_VIRTIO_MEM &&
-        mem->model != VIR_DOMAIN_MEMORY_MODEL_SGX_EPC)
+        mem->model != VIR_DOMAIN_MEMORY_MODEL_SGX_EPC &&
+        mem->model != VIR_DOMAIN_MEMORY_MODEL_EGM)
         return mem->info.addr.dimm.slot;
 
     for (i = 0; i < def->nmems; i++) {
@@ -553,6 +554,10 @@ qemuAssignDeviceMemoryAlias(virDomainDef *def,
     case VIR_DOMAIN_MEMORY_MODEL_SGX_EPC:
         prefix = "epc";
         break;
+    case VIR_DOMAIN_MEMORY_MODEL_EGM: {
+        prefix = "egm";
+        break;
+    }
     case VIR_DOMAIN_MEMORY_MODEL_NONE:
     case VIR_DOMAIN_MEMORY_MODEL_LAST:
     default:

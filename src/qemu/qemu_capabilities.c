@@ -746,6 +746,7 @@ VIR_ENUM_IMPL(virQEMUCaps,
 
               /* 485 */
               "acpi-generic-initiator", /* QEMU_CAPS_ACPI_GENERIC_INITIATOR */
+              "acpi-egm-memory", /* QEMU_CAPS_DEVICE_ACPI_EGM_MEMORY */
               "rme-guest", /* QEMU_CAPS_CCA_GUEST */
     );
 
@@ -1443,6 +1444,7 @@ struct virQEMUCapsStringFlags virQEMUCapsObjectTypes[] = {
     { "tpm-emulator", QEMU_CAPS_DEVICE_TPM_EMULATOR },
     { "tpm-passthrough", QEMU_CAPS_DEVICE_TPM_PASSTHROUGH },
     { "acpi-generic-initiator", QEMU_CAPS_ACPI_GENERIC_INITIATOR },
+    { "acpi-egm-memory", QEMU_CAPS_DEVICE_ACPI_EGM_MEMORY },
     { "rme-guest", QEMU_CAPS_CCA_GUEST },
 };
 
