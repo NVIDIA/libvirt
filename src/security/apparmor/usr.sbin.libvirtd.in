@@ -47,6 +47,9 @@ profile libvirtd @sbindir@/libvirtd flags=(attach_disconnected) {
   mount options=(rw, move) /{,var/}run/libvirt/qemu/*{,/} -> /dev/**,
   umount /{,var/}run/libvirt/qemu/*{,/},
 
+  # Allow bind mounting EGM devices into qemu namespaces
+  mount options=(rw, bind) /dev/egm* -> /{,var/}run/libvirt/qemu/**,
+
   network inet stream,
   network inet dgram,
   network inet6 stream,

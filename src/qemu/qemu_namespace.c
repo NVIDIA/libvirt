@@ -392,6 +392,9 @@ qemuDomainSetupMemory(virDomainMemoryDef *mem,
         *paths = g_slist_prepend(*paths, g_strdup(QEMU_DEV_SGX_VEPVC));
         *paths = g_slist_prepend(*paths, g_strdup(QEMU_DEV_SGX_PROVISION));
         break;
+    case VIR_DOMAIN_MEMORY_MODEL_EGM:
+        *paths = g_slist_prepend(*paths, g_strdup(mem->source.egm.path));
+        break;
 
     case VIR_DOMAIN_MEMORY_MODEL_NONE:
     case VIR_DOMAIN_MEMORY_MODEL_DIMM:
