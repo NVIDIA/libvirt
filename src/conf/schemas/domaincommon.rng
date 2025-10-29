@@ -6422,6 +6422,11 @@
               </attribute>
             </optional>
             <optional>
+              <attribute name="cmdqv">
+                <ref name="virOnOff"/>
+              </attribute>
+            </optional>
+            <optional>
               <attribute name="ats">
                 <ref name="virOnOff"/>
               </attribute>

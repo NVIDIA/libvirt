@@ -9430,6 +9430,11 @@ Examples:
       to enable hardware acceleration support for smmuv3Dev IOMMU devices.
       (QEMU/KVM and ``smmuv3`` model only)
 
+   ``cmdqv``
+      The ``cmdqv`` attribute with possibel values ``on`` and ``off`` can be used
+      to enable NVIDIA Tegra241 CMDQV, an extension for ARM SMMUv3 that supports
+      passthrough of physical SMMU-CMDQ linked command queue from host space to VM.
+
    ``ats``
       The ``ats`` attribute with possible values ``on`` and ``off`` can be used
       to enable reporting Address Translation Services capability to the guest
