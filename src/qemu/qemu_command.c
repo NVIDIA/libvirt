@@ -6344,6 +6344,7 @@ qemuBuildPCINestedSmmuv3DevProps(const virDomainDef *def,
                               "S:ril", iommu->ril == VIR_TRISTATE_SWITCH_ON ? "on" : iommu->ril == VIR_TRISTATE_SWITCH_OFF ? "off" : NULL,
                               "S:ssidsize", ssidsizeStr,
                               "S:oas", oasStr,
+                              "S:cmdqv", iommu->cmdqv == VIR_TRISTATE_SWITCH_ON ? "on" : iommu->cmdqv == VIR_TRISTATE_SWITCH_OFF ? "off" : NULL,
                               NULL) < 0)
         return NULL;
 
