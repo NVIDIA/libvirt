@@ -373,6 +373,7 @@ struct _virDomainHostdevDef {
     bool missing;
     bool readonly;
     bool shareable;
+    unsigned int vpasidCapOffset;
     virTristateBool writeFiltering;
     union {
         virDomainHostdevSubsys subsys;
@@ -3089,6 +3090,11 @@ struct _virDomainIOMMUDef {
     virTristateSwitch dma_translation;
     virTristateSwitch xtsup;
     virTristateSwitch pt;
+    virTristateSwitch accel;
+    virTristateSwitch ats;
+    virTristateSwitch ril;
+    unsigned int ssid_size;
+    unsigned int oas;
     int granule; /* -1 means 'host', 0 unset, page size in KiB otherwise */
 };
 

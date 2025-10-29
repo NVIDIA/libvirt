@@ -4816,6 +4816,7 @@ qemuBuildPCIHostdevDevProps(const virDomainDef *def,
                               "B:ramfb", ramfb,
                               "S:iommufd", iommufdId,
                               "S:fd", fdstr,
+                              "p:x-vpasid-cap-offset", dev->vpasidCapOffset,
                               NULL) < 0)
         return NULL;
 
@@ -6315,6 +6316,8 @@ qemuBuildPCINestedSmmuv3DevProps(const virDomainDef *def,
 {
     g_autoptr(virJSONValue) props = NULL;
     g_autofree char *bus = NULL;
+    g_autofree char *ssidsizeStr = NULL;
+    g_autofree char *oasStr = NULL;
     virPCIDeviceAddress addr = { .bus = iommu->pci_bus };
 
     bus = qemuBuildDeviceAddressPCIGetBus(def, &addr);
@@ -6329,8 +6332,31 @@ qemuBuildPCINestedSmmuv3DevProps(const virDomainDef *def,
                               "s:driver", "arm-smmuv3",
                               "s:primary-bus", bus,
                               "s:id", iommu->info.alias,
+                              "B:accel", (iommu->accel == VIR_TRISTATE_SWITCH_ON),
+                              "S:ats", iommu->ats == VIR_TRISTATE_SWITCH_ON ? "on" : iommu->ats == VIR_TRISTATE_SWITCH_OFF ? "off" : NULL,
+                              "S:ril", iommu->ril == VIR_TRISTATE_SWITCH_OFF ? "off" : NULL,
                               NULL) < 0)
         return NULL;
+
+    if (iommu->ssid_size > 0) {
+        ssidsizeStr = g_strdup_printf("%u", iommu->ssid_size);
+        if (!ssidsizeStr)
+            return NULL;
+        if (virJSONValueObjectAdd(&props,
+                                  "S:ssidsize", ssidsizeStr,
+                                  NULL) < 0)
+            return NULL;
+    }
+
+    if (iommu->oas > 0) {
+        oasStr = g_strdup_printf("%u", iommu->oas);
+        if (!oasStr)
+            return NULL;
+        if (virJSONValueObjectAdd(&props,
+                                  "S:oas", oasStr,
+                                  NULL) < 0)
+            return NULL;
+    }
 
     return g_steal_pointer(&props);
 }

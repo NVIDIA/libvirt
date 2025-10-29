@@ -5010,6 +5010,13 @@ or:
    device; if PCI ROM loading is disabled through this attribute, attempts to
    tweak the loading process further using the ``bar`` or ``file`` attributes
    will be rejected. :since:`Since 4.3.0 (QEMU and KVM only)`.
+``vpasidCapOffset``
+   The ``vpasidCapOffset`` element is used to change the offset at which a
+   PASID PCIe extended capability is placed in a vfio-pci device's PCIe
+   extended configuration space. If not specified or set to 0, the capability
+   is placed at the end of the extended configuration space when PASID is
+   supported. The offset must be 4-byte aligned and within the PCIe extended
+   configuration space.
 ``address``
    The ``address`` element for USB devices has a ``bus`` attribute to specify
    the USB bus. In addition, either a ``device`` attribute or a ``port``
@@ -9417,6 +9424,35 @@ Examples:
    ``pciBus``
       The ``pciBus`` attribute notes the index of the controller that an
       IOMMU device is attached to. (QEMU/KVM and ``smmuv3`` model only)
+
+   ``accel``
+      The ``accel`` attribute with possible values ``on`` and ``off`` can be used
+      to enable hardware acceleration support for smmuv3Dev IOMMU devices.
+      (QEMU/KVM and ``smmuv3`` model only)
+
+   ``ats``
+      The ``ats`` attribute with possible values ``on`` and ``off`` can be used
+      to enable reporting Address Translation Services capability to the guest
+      for smmuv3Dev IOMMU devices with ``accel`` set to ``on``, if the host
+      SMMUv3 supports ATS and the associated passthrough device supports ATS.
+      (QEMU/KVM and ``smmuv3`` model only)
+
+   ``ril``
+      The ``ril`` attribute with possible values ``on`` and ``off`` can be used
+      to report whether Range Invalidation for smmuv3Dev IOMMU devices with
+      ``accel`` set to ``on`` is compatible with host SMMUv3 support.
+      (QEMU/KVM and ``smmuv3`` model only)
+
+   ``ssidSize``
+      The ``ssidSize`` attribute sets the number of bits used to represent
+      SubstreamIDs. A value of N allows SSIDs in the range [0 .. 2^N - 1].
+      The valid range is 0-20, and a value greater than 0 is required for
+      enabling PASID support, as doing so advertises PASID capability to
+      the vIOMMU. (QEMU/KVM and ``smmuv3`` model only)
+
+   ``oas``
+      The ``oas`` attribute sets the output address size in units of bits.
+      (QEMU/KVM and ``smmuv3`` model only)
 
 In case of ``virtio`` IOMMU device, the ``driver`` element can optionally
 contain ``granule`` subelement that allows to choose which granule will be
