@@ -6329,6 +6329,31 @@
                 <data type="unsignedInt"/>
               </attribute>
             </optional>
+            <optional>
+              <attribute name="accel">
+                <ref name="virOnOff"/>
+              </attribute>
+            </optional>
+            <optional>
+              <attribute name="ats">
+                <ref name="virOnOff"/>
+              </attribute>
+            </optional>
+            <optional>
+              <attribute name="ril">
+                <ref name="virOnOff"/>
+              </attribute>
+            </optional>
+            <optional>
+              <attribute name="ssidSize">
+                <data type="unsignedInt"/>
+              </attribute>
+            </optional>
+            <optional>
+              <attribute name="oas">
+                <data type="unsignedInt"/>
+              </attribute>
+            </optional>
           </element>
         </optional>
         <optional>
@@ -6610,6 +6635,13 @@
           <ref name="pciaddress"/>
         </element>
       </element>
+      <optional>
+        <element name="vpasidCapOffset">
+          <data type="string">
+            <param name="pattern">(0x[0-9a-fA-F]+|[0-9]+)</param>
+          </data>
+        </element>
+      </optional>
       <ref name="hostdevsubsysvfiodisplay"/>
     </interleave>
   </define>

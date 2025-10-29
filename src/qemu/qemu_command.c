@@ -4807,6 +4807,7 @@ qemuBuildPCIHostdevDevProps(const virDomainDef *def,
                               "S:display", qemuOnOffAuto(pcisrc->display),
                               "B:ramfb", ramfb,
                               "S:iommufd", iommufdId,
+                              "p:x-vpasid-cap-offset", dev->vpasidCapOffset,
                               NULL) < 0)
         return NULL;
 
@@ -6340,8 +6341,30 @@ qemuBuildPCINestedSmmuv3DevProps(const virDomainDef *def,
                               "s:driver", "arm-smmuv3",
                               "s:primary-bus", bus,
                               "s:id", iommu->info.alias,
+                              "B:accel", (iommu->accel == VIR_TRISTATE_SWITCH_ON),
+                              "B:ats", (iommu->ats == VIR_TRISTATE_SWITCH_ON),
                               NULL) < 0)
         return NULL;
+
+    /* QEMU SMMUv3 has RIL support by default; only emit when explicitly disabling */
+    if (iommu->ril == VIR_TRISTATE_SWITCH_OFF) {
+        if (virJSONValueObjectAppendBoolean(props, "ril", false) < 0)
+            return NULL;
+    }
+
+    if (iommu->ssid_size > 0) {
+        if (virJSONValueObjectAdd(&props,
+                                  "p:ssidsize", iommu->ssid_size,
+                                  NULL) < 0)
+            return NULL;
+    }
+
+    if (iommu->oas > 0) {
+        if (virJSONValueObjectAdd(&props,
+                                  "p:oas", iommu->oas,
+                                  NULL) < 0)
+            return NULL;
+    }
 
     return g_steal_pointer(&props);
 }

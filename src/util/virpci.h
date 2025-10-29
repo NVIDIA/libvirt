@@ -35,6 +35,10 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC(virPCIDeviceList, virObjectUnref);
 
 #define VIR_DOMAIN_DEVICE_ZPCI_MAX_UID UINT16_MAX
 #define VIR_DOMAIN_DEVICE_ZPCI_MAX_FID UINT32_MAX
+/* Size of the standard PCI config space */
+#define VIR_DOMAIN_PCI_CONFIG_SPACE_SIZE 0x100
+/* Size of the standard PCIe config space: 4KB */
+#define VIR_DOMAIN_PCIE_CONFIG_SPACE_SIZE  0x1000
 
 typedef struct _virZPCIDeviceAddressID virZPCIDeviceAddressID;
 typedef struct _virZPCIDeviceAddress virZPCIDeviceAddress;
