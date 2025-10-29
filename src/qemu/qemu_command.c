@@ -6343,6 +6343,7 @@ qemuBuildPCINestedSmmuv3DevProps(const virDomainDef *def,
                               "s:id", iommu->info.alias,
                               "B:accel", (iommu->accel == VIR_TRISTATE_SWITCH_ON),
                               "B:ats", (iommu->ats == VIR_TRISTATE_SWITCH_ON),
+                              "B:tegra241-cmdqv", (iommu->cmdqv == VIR_TRISTATE_SWITCH_ON),
                               NULL) < 0)
         return NULL;
 
