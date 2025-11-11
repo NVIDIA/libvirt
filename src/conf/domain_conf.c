@@ -1546,6 +1546,7 @@ VIR_ENUM_IMPL(virDomainLaunchSecurity,
               "sev-snp",
               "s390-pv",
               "tdx",
+              "cca",
 );
 
 VIR_ENUM_IMPL(virDomainPstoreBackend,
@@ -3984,6 +3985,10 @@ virDomainSecDefFree(virDomainSecDef *def)
         g_free(def->data.tdx.mrowner);
         g_free(def->data.tdx.mrownerconfig);
         g_free(def->data.tdx.qgs_unix_path);
+        break;
+    case VIR_DOMAIN_LAUNCH_SECURITY_CCA:
+        g_free(def->data.cca.measurement_algo);
+        g_free(def->data.cca.personalization_value);
         break;
     case VIR_DOMAIN_LAUNCH_SECURITY_PV:
     case VIR_DOMAIN_LAUNCH_SECURITY_NONE:
@@ -14349,6 +14354,21 @@ virDomainTDXDefParseXML(virDomainTDXDef *def,
 }
 
 
+static int
+virDomainCCADefParseXML(virDomainCCADef *def,
+                        xmlXPathContextPtr ctxt)
+{
+    def->measurement_algo = virXPathString("string(./measurement-algo)", ctxt);
+    def->personalization_value = virXPathString("string(./personalization-value)", ctxt);
+
+    if (virXMLPropTristateBool(ctxt->node, "measurement-log", VIR_XML_PROP_NONE,
+                               &def->measurement_log) < 0)
+        return -1;
+
+    return 0;
+}
+
+
 static virDomainSecDef *
 virDomainSecDefParseXML(xmlNodePtr lsecNode,
                         xmlXPathContextPtr ctxt)
@@ -14377,6 +14397,10 @@ virDomainSecDefParseXML(xmlNodePtr lsecNode,
             return NULL;
         break;
     case VIR_DOMAIN_LAUNCH_SECURITY_PV:
+        break;
+    case VIR_DOMAIN_LAUNCH_SECURITY_CCA:
+        if (virDomainCCADefParseXML(&sec->data.cca, ctxt) < 0)
+            return NULL;
         break;
     case VIR_DOMAIN_LAUNCH_SECURITY_NONE:
     case VIR_DOMAIN_LAUNCH_SECURITY_LAST:
@@ -28150,6 +28174,7 @@ virDomainSecDefFormat(virBuffer *buf, virDomainSecDef *sec)
         break;
 
     case VIR_DOMAIN_LAUNCH_SECURITY_PV:
+    case VIR_DOMAIN_LAUNCH_SECURITY_CCA:
         break;
 
     case VIR_DOMAIN_LAUNCH_SECURITY_NONE:

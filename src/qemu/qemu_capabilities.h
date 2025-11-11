@@ -732,6 +732,9 @@ typedef enum { /* virQEMUCapsFlags grouping marker for syntax-check */
     QEMU_CAPS_MSHV, /* -accel mshv */
     QEMU_CAPS_DEVICE_ACPI_EGM_MEMORY, /* For using extended GPU memory */
 
+    /* 490 */
+    QEMU_CAPS_CCA_GUEST, /* -object rme-guest */
+
     QEMU_CAPS_LAST /* this must always be the last item */
 } virQEMUCapsFlags;
 

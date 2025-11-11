@@ -756,6 +756,9 @@ VIR_ENUM_IMPL(virQEMUCaps,
               "query-accelerators", /* QEMU_CAPS_QUERY_ACCELERATORS */
               "mshv", /* QEMU_CAPS_MSHV */
               "acpi-egm-memory", /* QEMU_CAPS_DEVICE_ACPI_EGM_MEMORY */
+
+              /* 490 */
+              "rme-guest", /* QEMU_CAPS_CCA_GUEST */
     );
 
 
@@ -840,6 +843,8 @@ struct _virQEMUCaps {
     virSEVCapability *sevCapabilities;
 
     virSGXCapability *sgxCapabilities;
+
+    virCCACapability *ccaCapabilities;
 
     virDomainCapsFeatureHyperv *hypervCapabilities;
 
@@ -1464,6 +1469,7 @@ struct virQEMUCapsStringFlags virQEMUCapsObjectTypes[] = {
     { "tpm-passthrough", QEMU_CAPS_DEVICE_TPM_PASSTHROUGH },
     { "acpi-generic-initiator", QEMU_CAPS_ACPI_GENERIC_INITIATOR },
     { "acpi-egm-memory", QEMU_CAPS_DEVICE_ACPI_EGM_MEMORY },
+    { "rme-guest", QEMU_CAPS_CCA_GUEST },
 };
 
 

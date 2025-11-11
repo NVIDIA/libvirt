@@ -224,6 +224,8 @@ typedef struct _virDomainSEVSNPDef virDomainSEVSNPDef;
 
 typedef struct _virDomainTDXDef virDomainTDXDef;
 
+typedef struct _virDomainCCADef virDomainCCADef;
+
 typedef struct _virDomainSecDef virDomainSecDef;
 
 typedef struct _virDomainShmemDef virDomainShmemDef;
