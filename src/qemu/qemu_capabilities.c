@@ -3769,6 +3769,32 @@ virQEMUCapsProbeQMPSGXCapabilities(virQEMUCaps *qemuCaps,
 }
 
 
+static int
+virQEMUCapsProbeQMPCCACapabilities(virQEMUCaps *qemuCaps,
+                                   qemuMonitor *mon)
+{
+    int rc = -1;
+    virCCACapability *caps = NULL;
+
+    if (!virQEMUCapsGet(qemuCaps, QEMU_CAPS_CCA_GUEST))
+        return 0;
+
+    if ((rc = qemuMonitorGetCCACapabilities(mon, &caps)) < 0)
+        return -1;
+
+    /* CCA isn't actually supported */
+    if (rc == 0) {
+        virQEMUCapsClear(qemuCaps, QEMU_CAPS_CCA_GUEST);
+        return 0;
+    }
+
+    virCCACapabilitiesFree(qemuCaps->ccaCapabilities);
+    qemuCaps->ccaCapabilities = caps;
+    return 0;
+}
+
+
+
 /*
  * Filter for features which should never be passed to QEMU. Either because
  * QEMU never supported them or they were dropped as they never did anything
@@ -5967,6 +5993,8 @@ virQEMUCapsInitQMPMonitor(virQEMUCaps *qemuCaps,
     if (virQEMUCapsProbeQMPSEVCapabilities(qemuCaps, mon) < 0)
         return -1;
     if (virQEMUCapsProbeQMPSGXCapabilities(qemuCaps, mon) < 0)
+        return -1;
+    if (virQEMUCapsProbeQMPCCACapabilities(qemuCaps, mon) < 0)
         return -1;
     virQEMUCapsProbeTDXCapabilities(qemuCaps);
 

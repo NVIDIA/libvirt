@@ -735,6 +735,12 @@ capabilities. All features occur as children of the main ``features`` element.
            <section node='1' size='262144' unit='KiB'/>
          </sections>
        </sgx>
+       <cca supported='yes'>
+         <enum name='measurement-algo'>
+           <value>sha256</value>
+           <value>sha512</value>
+         </enum>
+       </cca>
        <hyperv supported='yes'>
          <enum name='features'>
            <value>relaxed</value>
@@ -862,6 +868,24 @@ document store. In order to use SGX with libvirt have a look at `SGX in domain X
 ``sections``
    The sections of the SGX enclave page cache (called EPC).
 
+CCA capabilities
+^^^^^^^^^^^^^^^^
+
+Arm Confidential Compute Architecture (CCA) capabilities are exposed under the
+``cca`` element.
+
+Arm CCA is a system solution comprised of hardware and software components that
+maximizes the security of data on devices and in the cloud.
+CCA enhances the virtualization capabilities of the platform by separating the
+management of resources from access to those resources.
+
+For more details on the CCA feature, please follow resources in the CCA developer's
+document store. In order to use CCA with libvirt have a look at `CCA in domain
+XML <formatdomain.html#launch-security>`__
+
+``measurement-algo``
+   Options for the ``measurement-algo`` used to describe blob hashes.
+
 
 Hyper-V Enlightenments
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -882,4 +906,5 @@ The ``sectype`` enum corresponds to ``type`` attribute of ``<launchSecurity/>``
 element as documented in `Launch Security
 <formatdomain.html#launch-security>`__.  :since:`(Since 10.5.0)` For additional
 information on individual types, see sections above: `s390-pv capability`_ for
-S390 PV, `SEV capabilities`_ for AMD SEV and/or AMD SEV-SNP.
+S390 PV, `SEV capabilities`_ for AMD SEV and/or AMD SEV-SNP, `CCA capabilities`_
+for Arm CCA.

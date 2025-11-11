@@ -3572,6 +3572,16 @@ qemuMonitorGetSGXCapabilities(qemuMonitor *mon,
 
 
 int
+qemuMonitorGetCCACapabilities(qemuMonitor *mon,
+                              virCCACapability **capabilities)
+{
+    QEMU_CHECK_MONITOR(mon);
+
+    return qemuMonitorJSONGetCCACapabilities(mon, capabilities);
+}
+
+
+int
 qemuMonitorNBDServerStart(qemuMonitor *mon,
                           const virStorageNetHostDef *server,
                           const char *tls_alias)

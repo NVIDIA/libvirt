@@ -208,6 +208,7 @@ virDomainAuditVcpu;
 
 
 # conf/domain_capabilities.h
+virCCACapabilitiesFree;
 virDomainCapsCPUModelsAdd;
 virDomainCapsCPUModelsCopy;
 virDomainCapsCPUModelsGet;
