@@ -7354,6 +7354,9 @@ qemuBuildMachineCommandLine(virCommand *cmd,
         case VIR_DOMAIN_LAUNCH_SECURITY_TDX:
             virBufferAddLit(&buf, ",confidential-guest-support=lsec0");
             break;
+        case VIR_DOMAIN_LAUNCH_SECURITY_CCA:
+            virBufferAddLit(&buf, ",confidential-guest-support=rme0");
+            break;
         case VIR_DOMAIN_LAUNCH_SECURITY_NONE:
         case VIR_DOMAIN_LAUNCH_SECURITY_LAST:
             virReportEnumRangeError(virDomainLaunchSecurity, def->sec->sectype);
@@ -10187,6 +10190,29 @@ qemuBuildTDXCommandLine(virCommand *cmd, virDomainTDXDef *tdx)
 
 
 static int
+qemuBuildCCACommandLine(virCommand *cmd, virDomainCCADef *cca)
+{
+    g_autoptr(virJSONValue) props = NULL;
+
+    VIR_DEBUG("measurement_algorithm=%s personalization_value=%s measurement_log=%d",
+              cca->measurement_algo, cca->personalization_value,
+              cca->measurement_log);
+
+    if (qemuMonitorCreateObjectProps(&props, "rme-guest", "rme0",
+                                     "S:measurement-algorithm", cca->measurement_algo,
+                                     "S:personalization-value", cca->personalization_value,
+                                     "T:measurement-log", cca->measurement_log,
+                                     NULL) < 0)
+        return -1;
+
+    if (qemuBuildObjectCommandlineFromJSON(cmd, props) < 0)
+        return -1;
+
+    return 0;
+}
+
+
+static int
 qemuBuildSecCommandLine(virDomainObj *vm, virCommand *cmd,
                         virDomainSecDef *sec)
 {
@@ -10205,6 +10231,10 @@ qemuBuildSecCommandLine(virDomainObj *vm, virCommand *cmd,
 
     case VIR_DOMAIN_LAUNCH_SECURITY_TDX:
         return qemuBuildTDXCommandLine(cmd, &sec->data.tdx);
+
+    case VIR_DOMAIN_LAUNCH_SECURITY_CCA:
+        return qemuBuildCCACommandLine(cmd, &sec->data.cca);
+
     case VIR_DOMAIN_LAUNCH_SECURITY_NONE:
     case VIR_DOMAIN_LAUNCH_SECURITY_LAST:
         virReportEnumRangeError(virDomainLaunchSecurity, sec->sectype);

@@ -2979,6 +2979,7 @@ typedef enum {
     VIR_DOMAIN_LAUNCH_SECURITY_SEV_SNP,
     VIR_DOMAIN_LAUNCH_SECURITY_PV,
     VIR_DOMAIN_LAUNCH_SECURITY_TDX,
+    VIR_DOMAIN_LAUNCH_SECURITY_CCA,
 
     VIR_DOMAIN_LAUNCH_SECURITY_LAST,
 } virDomainLaunchSecurity;
@@ -3032,12 +3033,19 @@ struct _virDomainTDXDef {
 #define VIR_DOMAIN_TDX_POLICY_ALLOWED_MASK       (VIR_DOMAIN_TDX_POLICY_DEBUG | \
                                                   VIR_DOMAIN_TDX_POLICY_SEPT_VE_DISABLE)
 
+struct _virDomainCCADef {
+    char *measurement_algo;
+    char *personalization_value;
+    virTristateBool measurement_log;
+};
+
 struct _virDomainSecDef {
     virDomainLaunchSecurity sectype;
     union {
         virDomainSEVDef sev;
         virDomainSEVSNPDef sev_snp;
         virDomainTDXDef tdx;
+        virDomainCCADef cca;
     } data;
 };
 

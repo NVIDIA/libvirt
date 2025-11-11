@@ -939,6 +939,8 @@ qemuSetupDevicesCgroup(virDomainObj *vm)
             if (qemuSetupSEVCgroup(vm) < 0)
                 return -1;
             break;
+        case VIR_DOMAIN_LAUNCH_SECURITY_CCA:
+            break;
         case VIR_DOMAIN_LAUNCH_SECURITY_PV:
         case VIR_DOMAIN_LAUNCH_SECURITY_TDX:
             break;

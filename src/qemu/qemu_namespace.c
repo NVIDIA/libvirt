@@ -673,6 +673,8 @@ qemuDomainSetupLaunchSecurity(virDomainObj *vm,
 
         VIR_DEBUG("Set up launch security for SEV");
         break;
+    case VIR_DOMAIN_LAUNCH_SECURITY_CCA:
+        break;
     case VIR_DOMAIN_LAUNCH_SECURITY_PV:
     case VIR_DOMAIN_LAUNCH_SECURITY_TDX:
         break;

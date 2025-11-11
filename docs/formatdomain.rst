@@ -9745,6 +9745,49 @@ Example configuration:
    ``/var/run/tdx-qgs/qgs.socket`` is used as default. User in TD guest cannot
    get TD quoting for attestation if this subelement is not provided.
 
+The contents of the ``<launchSecurity type='cca'>`` element is used to create
+RealmVM using the Arm CCA feature (Confidential Compute Architecture).
+CCA :since:`Since 11.0.0` enhances the virtualization capabilities of the
+platform by separating the management of resources from access to those resources.
+This is achieved by extending the TrustZone of Cortex-A's Normal and Secure
+world concepts and adding the Realm world and the underlying Root world.
+The Secure Monitor runs in the root world and manages the transition between
+these security states. For more information see the Learn the architecture -
+Arm Confidential Compute Architecture software stack:
+`<https://developer.arm.com/documentation/den0127/latest>`__
+
+::
+
+  <domain>
+    ...
+    <launchSecurity type='cca' measurement-log='yes'>
+      <measurement-algo>sha256</measurement-algo>
+      <personalization-value>...</personalization-value>
+    </launchSecurity>
+    ...
+  </domain>
+
+The ``<launchSecurity/>`` element accepts the following attributes:
+
+``measurement-algo``
+   The optional ``measurement-algo`` element determines algorithm used to
+   describe blob hashes.
+
+``personalization-value``
+   The optional ``personalization-value`` element is used to configure
+   the Realm Personalization Value (RPV). The Realm Personalization
+   Value (RPV) is provided by the user to distinguish Realms that have
+   the same initial measurement. The personalization-value for libvirt
+   must be an 88-character string representing the Base64 encoding of
+   the 64-byte hexadecimal value defined in the RMM specification.
+   Ensure that you encode the 64-byte hex value from the RMM specification
+   using Base64 before providing it to libvirt.
+
+``measurement-log``
+   The optional ``measurement-log`` element provides a way to create
+   an event log in the format defined by the Trusted Computing Group
+   for TPM2.
+
 Example configs
 ===============
 

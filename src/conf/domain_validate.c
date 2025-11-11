@@ -1975,6 +1975,7 @@ virDomainDefLaunchSecurityValidate(const virDomainDef *def)
     case VIR_DOMAIN_LAUNCH_SECURITY_NONE:
     case VIR_DOMAIN_LAUNCH_SECURITY_SEV:
     case VIR_DOMAIN_LAUNCH_SECURITY_PV:
+    case VIR_DOMAIN_LAUNCH_SECURITY_CCA:
     case VIR_DOMAIN_LAUNCH_SECURITY_LAST:
         break;
     }

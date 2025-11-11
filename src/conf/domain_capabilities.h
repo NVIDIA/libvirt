@@ -245,6 +245,12 @@ struct _virSGXCapability {
     virSGXSection *sgxSections;
 };
 
+typedef struct _virCCACapability virCCACapability;
+struct _virCCACapability {
+    size_t nCcaMeasurementAlgo;
+    char **ccaMeasurementAlgo;
+};
+
 STATIC_ASSERT_ENUM(VIR_DOMAIN_CRYPTO_MODEL_LAST);
 STATIC_ASSERT_ENUM(VIR_DOMAIN_CRYPTO_TYPE_LAST);
 STATIC_ASSERT_ENUM(VIR_DOMAIN_CRYPTO_BACKEND_LAST);

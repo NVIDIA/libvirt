@@ -2056,6 +2056,8 @@ virSecurityDACRestoreAllLabel(virSecurityManager *mgr,
         case VIR_DOMAIN_LAUNCH_SECURITY_PV:
         case VIR_DOMAIN_LAUNCH_SECURITY_TDX:
             break;
+        case VIR_DOMAIN_LAUNCH_SECURITY_CCA:
+            break;
         case VIR_DOMAIN_LAUNCH_SECURITY_NONE:
         case VIR_DOMAIN_LAUNCH_SECURITY_LAST:
             virReportEnumRangeError(virDomainLaunchSecurity, def->sec->sectype);
@@ -2307,6 +2309,8 @@ virSecurityDACSetAllLabel(virSecurityManager *mgr,
             break;
         case VIR_DOMAIN_LAUNCH_SECURITY_PV:
         case VIR_DOMAIN_LAUNCH_SECURITY_TDX:
+            break;
+        case VIR_DOMAIN_LAUNCH_SECURITY_CCA:
             break;
         case VIR_DOMAIN_LAUNCH_SECURITY_NONE:
         case VIR_DOMAIN_LAUNCH_SECURITY_LAST:
