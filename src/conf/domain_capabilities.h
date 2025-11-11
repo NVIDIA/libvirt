@@ -344,6 +344,7 @@ struct _virDomainCaps {
     virDomainCapsFeatureGIC gic;
     virSEVCapability *sev;
     virSGXCapability *sgx;
+    virCCACapability *cca;
     virDomainCapsFeatureHyperv *hyperv;
     virDomainCapsLaunchSecurity launchSecurity;
     /* add new domain features here */
@@ -404,6 +405,11 @@ void
 virSGXCapabilitiesFree(virSGXCapability *capabilities);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virSGXCapability, virSGXCapabilitiesFree);
+
+void
+virCCACapabilitiesFree(virCCACapability *capabilities);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(virCCACapability, virCCACapabilitiesFree);
 
 void virDomainCapsFeatureHypervFree(virDomainCapsFeatureHyperv *capabilities);
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virDomainCapsFeatureHyperv, virDomainCapsFeatureHypervFree);
