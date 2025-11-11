@@ -118,6 +118,25 @@ virDomainCapsFeatureHypervCopy(virDomainCapsFeatureHyperv *cap)
 }
 
 
+void
+virCCACapabilitiesFree(virCCACapability *cap)
+{
+    size_t i;
+
+    if (!cap)
+        return;
+
+    if (cap->nCcaMeasurementAlgo)
+        for (i = 0; i < cap->nCcaMeasurementAlgo; i++)
+            g_free(cap->ccaMeasurementAlgo[i]);
+
+    if (cap->ccaMeasurementAlgo)
+        g_free(cap->ccaMeasurementAlgo);
+
+    g_free(cap);
+}
+
+
 static void
 virDomainCapsDispose(void *obj)
 {
@@ -131,6 +150,7 @@ virDomainCapsDispose(void *obj)
     virCPUDefFree(caps->cpu.hostModel);
     virSEVCapabilitiesFree(caps->sev);
     virSGXCapabilitiesFree(caps->sgx);
+    virCCACapabilitiesFree(caps->cca);
     virDomainCapsFeatureHypervFree(caps->hyperv);
 
     values = &caps->os.loader.values;
@@ -814,6 +834,33 @@ virDomainCapsFeatureSGXFormat(virBuffer *buf,
 }
 
 static void
+virDomainCapsFeatureCCAFormat(virBuffer *buf,
+                              const virCCACapability *cca)
+{
+    size_t i;
+
+    if (!cca) {
+        virBufferAddLit(buf, "<cca supported='no'/>\n");
+        return;
+    }
+
+    virBufferAddLit(buf, "<cca supported='yes'>\n");
+    virBufferAdjustIndent(buf, 2);
+
+    virBufferAddLit(buf, "<enum name='measurement-algo'>\n");
+    virBufferAdjustIndent(buf, 2);
+    for (i = 0; i < cca->nCcaMeasurementAlgo; i++) {
+        virBufferAsprintf(buf, "<value>%s</value>\n",
+                          cca->ccaMeasurementAlgo[i]);
+    }
+    virBufferAdjustIndent(buf, -2);
+    virBufferAddLit(buf, "</enum>\n");
+
+    virBufferAdjustIndent(buf, -2);
+    virBufferAddLit(buf, "</cca>\n");
+}
+
+static void
 virDomainCapsFeatureHypervFormat(virBuffer *buf,
                                  const virDomainCapsFeatureHyperv *hyperv)
 {
@@ -893,6 +940,7 @@ virDomainCapsFormatFeatures(const virDomainCaps *caps,
 
     virDomainCapsFeatureSEVFormat(&childBuf, caps->sev);
     virDomainCapsFeatureSGXFormat(&childBuf, caps->sgx);
+    virDomainCapsFeatureCCAFormat(&childBuf, caps->cca);
     virDomainCapsFeatureHypervFormat(&childBuf, caps->hyperv);
     virDomainCapsLaunchSecurityFormat(&childBuf, &caps->launchSecurity);
 

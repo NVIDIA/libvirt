@@ -163,6 +163,10 @@ qemuMonitorJSONGetSEVCapabilities(qemuMonitor *mon,
                                   virSEVCapability **capabilities);
 
 int
+qemuMonitorJSONGetCCACapabilities(qemuMonitor *mon,
+                                  virCCACapability **capabilities);
+
+int
 qemuMonitorJSONMigrate(qemuMonitor *mon,
                        unsigned int flags,
                        const char *uri);

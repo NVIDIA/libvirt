@@ -921,6 +921,9 @@ int
 qemuMonitorSetMigrationParams(qemuMonitor *mon,
                               virJSONValue **params);
 
+int qemuMonitorGetCCACapabilities(qemuMonitor *mon,
+                                  virCCACapability **capabilities);
+
 typedef enum {
     QEMU_MONITOR_MIGRATION_STATUS_INACTIVE,
     QEMU_MONITOR_MIGRATION_STATUS_SETUP,

@@ -6424,6 +6424,104 @@ qemuMonitorJSONGetSGXCapabilities(qemuMonitor *mon,
 }
 
 
+static int
+qemuMonitorJSONGetCCAMeasurementAlgo(qemuMonitor *mon,
+                                     size_t *numalgo,
+                                     char ***malgo)
+{
+    g_autoptr(virJSONValue) cmd = NULL;
+    g_autoptr(virJSONValue) reply = NULL;
+    virJSONValue *caps;
+    virJSONValue *malgolist = NULL;
+    g_auto(GStrv) list = NULL;
+    size_t i;
+    size_t n = 0;
+
+    if (!(cmd = qemuMonitorJSONMakeCommand("query-cca-capabilities",
+                                           NULL)))
+        return -1;
+
+    if (qemuMonitorJSONCommand(mon, cmd, &reply) < 0)
+        return -1;
+
+    /* If the 'query-cca-capabilities' QMP command was not available
+     * we simply successfully return zero capabilities.
+     * This is the current QEMU (=9.1.91) and all non-ARM architectures */
+    if (qemuMonitorJSONHasError(reply, "CommandNotFound"))
+        return 0;
+
+    if (qemuMonitorJSONCheckError(cmd, reply) < 0)
+        return -1;
+
+    caps = virJSONValueObjectGetObject(reply, "return");
+
+    if (!(caps = qemuMonitorJSONGetReply(cmd, reply, VIR_JSON_TYPE_OBJECT)))
+        return -1;
+
+    if ((malgolist = virJSONValueObjectGetArray(caps, "sections"))) {
+        n = virJSONValueArraySize(malgolist);
+
+        /* If the received array is empty, an error is returned. */
+        if (n == 0)
+            return -1;
+
+        list = g_new0(char *, n + 1);
+
+        for (i = 0; i < n; i++) {
+            virJSONValue *cap = virJSONValueArrayGet(malgolist, i);
+            const char *measurement_algo = NULL;
+
+            if (!cap || virJSONValueGetType(cap) != VIR_JSON_TYPE_OBJECT) {
+                virReportError(VIR_ERR_INTERNAL_ERROR, "%s",
+                               _("missing entry in CCA capabilities list"));
+                return -1;
+            }
+
+            if (!(measurement_algo = virJSONValueObjectGetString(cap, "measurement-algo"))) {
+                virReportError(VIR_ERR_INTERNAL_ERROR, "%s",
+                           _("query-cca-capabilities reply was missing 'measurement-algo' field"));
+                return -1;
+            }
+
+            list[i] = g_strdup(measurement_algo);
+        }
+    }
+
+    *numalgo = n;
+    *malgo = g_steal_pointer(&list);
+    return 1;
+}
+
+
+/**
+ * qemuMonitorJSONGetCCACapabilities:
+ * @mon: qemu monitor object
+ * @capabilities: pointer to pointer to a CCA capability structure to be filled
+ *
+ * Returns -1 on error, 0 if CCA is not supported, and 1 if CCA is supported on
+ * the platform.
+ */
+int
+qemuMonitorJSONGetCCACapabilities(qemuMonitor *mon,
+                                  virCCACapability **capabilities)
+{
+    g_autoptr(virCCACapability) capability = NULL;
+    int ret = 0;
+
+    *capabilities = NULL;
+    capability = g_new0(virCCACapability, 1);
+
+    ret = qemuMonitorJSONGetCCAMeasurementAlgo(mon,
+                                               &capability->nCcaMeasurementAlgo,
+                                               &capability->ccaMeasurementAlgo);
+
+    if (ret > 0)
+        *capabilities = g_steal_pointer(&capability);
+
+    return ret;
+}
+
+
 static virJSONValue *
 qemuMonitorJSONBuildInetSocketAddress(const char *host,
                                       const char *port)
