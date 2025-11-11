@@ -768,6 +768,7 @@ VIR_ENUM_IMPL(virQEMUCaps,
               /* 495 */
               "blockdev-mirror.target-is-zero", /* QEMU_CAPS_BLOCKDEV_MIRROR_TARGET_IS_ZERO */
               "acpi-egm-memory", /* QEMU_CAPS_DEVICE_ACPI_EGM_MEMORY */
+              "rme-guest", /* QEMU_CAPS_CCA_GUEST */
     );
 
 
@@ -852,6 +853,8 @@ struct _virQEMUCaps {
     virSEVCapability *sevCapabilities;
 
     virSGXCapability *sgxCapabilities;
+
+    virCCACapability *ccaCapabilities;
 
     virDomainCapsFeatureHyperv *hypervCapabilities;
 
@@ -1479,6 +1482,7 @@ struct virQEMUCapsStringFlags virQEMUCapsObjectTypes[] = {
     { "uefi-vars-x64", QEMU_CAPS_DEVICE_UEFI_VARS },
     { "uefi-vars-sysbus", QEMU_CAPS_DEVICE_UEFI_VARS },
     { "acpi-egm-memory", QEMU_CAPS_DEVICE_ACPI_EGM_MEMORY },
+    { "rme-guest", QEMU_CAPS_CCA_GUEST },
 };
 
 
