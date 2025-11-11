@@ -2002,6 +2002,34 @@ virQEMUCapsSGXInfoCopy(virSGXCapability **dst,
 
 
 static void
+virQEMUCapsCCAInfoCopy(virCCACapability **dst,
+                       virCCACapability *src)
+{
+    g_autoptr(virCCACapability) tmp = NULL;
+    size_t i;
+
+    if (!src) {
+        *dst = NULL;
+        return;
+    }
+
+    tmp = g_new0(virCCACapability, 1);
+
+    tmp->nCcaMeasurementAlgo = src->nCcaMeasurementAlgo;
+
+    if (tmp->nCcaMeasurementAlgo != 0) {
+        tmp->ccaMeasurementAlgo = g_new0(char *, tmp->nCcaMeasurementAlgo);
+
+        for (i = 0; i < tmp->nCcaMeasurementAlgo; i++) {
+            tmp->ccaMeasurementAlgo[i] = g_strdup(src->ccaMeasurementAlgo[i]);
+        }
+    }
+
+    *dst = g_steal_pointer(&tmp);
+}
+
+
+static void
 virQEMUCapsAccelCopyMachineTypes(virQEMUCapsAccel *dst,
                                  virQEMUCapsAccel *src)
 {
@@ -2075,6 +2103,9 @@ virQEMUCaps *virQEMUCapsNewCopy(virQEMUCaps *qemuCaps)
 
     if (virQEMUCapsGet(qemuCaps, QEMU_CAPS_SGX_EPC))
         virQEMUCapsSGXInfoCopy(&ret->sgxCapabilities, qemuCaps->sgxCapabilities);
+
+    if (virQEMUCapsGet(qemuCaps, QEMU_CAPS_CCA_GUEST))
+        virQEMUCapsCCAInfoCopy(&ret->ccaCapabilities, qemuCaps->ccaCapabilities);
 
     ret->hypervCapabilities = virDomainCapsFeatureHypervCopy(qemuCaps->hypervCapabilities);
 
@@ -2720,6 +2751,13 @@ virDomainCapsFeatureHyperv *
 virQEMUCapsGetHypervCapabilities(virQEMUCaps *qemuCaps)
 {
     return qemuCaps->hypervCapabilities;
+}
+
+
+virCCACapability *
+virQEMUCapsGetCCACapabilities(virQEMUCaps *qemuCaps)
+{
+    return qemuCaps->ccaCapabilities;
 }
 
 
@@ -4573,6 +4611,38 @@ virQEMUCapsParseSGXInfo(virQEMUCaps *qemuCaps,
 
 
 static int
+virQEMUCapsParseCCAInfo(virQEMUCaps *qemuCaps,
+                        xmlXPathContextPtr ctxt)
+{
+    g_autofree xmlNodePtr *nodes = NULL;
+    size_t i;
+    int n;
+
+    if ((n = virXPathNodeSet("./cca", ctxt, &nodes)) < 0)
+        return -1;
+
+    if (n > 0) {
+        g_autoptr(virCCACapability) tmp = g_new0(virCCACapability, 1);
+        tmp->ccaMeasurementAlgo = g_new0(char *, n);
+
+        for (i = 0; i < n; i++) {
+            char *malgo = NULL;
+            if (!(malgo = virXMLPropString(nodes[i], "measurement-algo"))) {
+                virReportError(VIR_ERR_INTERNAL_ERROR, "%s",
+                               _("missing CCA measurement-algo in QEMU capabilities cache"));
+                return -1;
+            }
+
+            tmp->ccaMeasurementAlgo[i] = g_strdup(malgo);
+        }
+        tmp->nCcaMeasurementAlgo = n;
+        qemuCaps->ccaCapabilities = g_steal_pointer(&tmp);
+    }
+    return 0;
+}
+
+
+static int
 virQEMUCapsParseHypervCapabilities(virQEMUCaps *qemuCaps,
                                    xmlXPathContextPtr ctxt)
 {
@@ -4915,6 +4985,9 @@ virQEMUCapsLoadCache(virArch hostArch,
     if (virQEMUCapsParseSGXInfo(qemuCaps, ctxt) < 0)
         return -1;
 
+    if (virQEMUCapsParseCCAInfo(qemuCaps, ctxt) < 0)
+        return -1;
+
     if (virQEMUCapsParseHypervCapabilities(qemuCaps, ctxt) < 0)
         return -1;
 
@@ -5156,6 +5229,23 @@ virQEMUCapsFormatSGXInfo(virQEMUCaps *qemuCaps,
 
 
 static void
+virQEMUCapsFormatCCAInfo(virQEMUCaps *qemuCaps, virBuffer *buf)
+{
+    virCCACapability *cca = virQEMUCapsGetCCACapabilities(qemuCaps);
+    size_t i;
+    size_t n;
+
+    n = cca->nCcaMeasurementAlgo;
+
+    if (n != 0) {
+        for (i = 0; i < n; i++) {
+            virBufferAsprintf(buf, "<cca measurement-algo='%s'/>\n", cca->ccaMeasurementAlgo[i]);
+        }
+    }
+}
+
+
+static void
 virQEMUCapsFormatHypervCapabilities(virQEMUCaps *qemuCaps,
                                     virBuffer *buf)
 {
@@ -5281,6 +5371,9 @@ virQEMUCapsFormatCache(virQEMUCaps *qemuCaps)
 
     if (qemuCaps->sgxCapabilities)
         virQEMUCapsFormatSGXInfo(qemuCaps, &buf);
+
+    if (qemuCaps->ccaCapabilities)
+        virQEMUCapsFormatCCAInfo(qemuCaps, &buf);
 
     if (qemuCaps->hypervCapabilities)
         virQEMUCapsFormatHypervCapabilities(qemuCaps, &buf);
@@ -6825,6 +6918,8 @@ virQEMUCapsFillDomainLaunchSecurity(virQEMUCaps *qemuCaps,
         VIR_DOMAIN_CAPS_ENUM_SET(launchSecurity->sectype, VIR_DOMAIN_LAUNCH_SECURITY_PV);
     if (virQEMUCapsGet(qemuCaps, QEMU_CAPS_TDX_GUEST))
         VIR_DOMAIN_CAPS_ENUM_SET(launchSecurity->sectype, VIR_DOMAIN_LAUNCH_SECURITY_TDX);
+    if (virQEMUCapsGet(qemuCaps, QEMU_CAPS_CCA_GUEST))
+        VIR_DOMAIN_CAPS_ENUM_SET(launchSecurity->sectype, VIR_DOMAIN_LAUNCH_SECURITY_CCA);
 
     if (launchSecurity->sectype.values == 0) {
         launchSecurity->supported = VIR_TRISTATE_BOOL_NO;
@@ -7052,6 +7147,23 @@ virQEMUCapsFillDomainFeatureSGXCaps(virQEMUCaps *qemuCaps,
 }
 
 
+/**
+ * virQEMUCapsFillDomainFeatureCCACaps:
+ * @qemuCaps: QEMU capabilities
+ * @domCaps: domain capabilities
+ *
+ * Take the information about CCA capabilities that has been obtained
+ * using the 'query-cca-capabilities' QMP command and stored in @qemuCaps
+ * and convert it to a form suitable for @domCaps.
+ */
+static void
+virQEMUCapsFillDomainFeatureCCACaps(virQEMUCaps *qemuCaps,
+                                    virDomainCaps *domCaps)
+{
+    virQEMUCapsCCAInfoCopy(&domCaps->cca, qemuCaps->ccaCapabilities);
+}
+
+
 static void
 virQEMUCapsFillDomainFeatureHypervCaps(virQEMUCaps *qemuCaps,
                                        virDomainCaps *domCaps)
@@ -7135,6 +7247,7 @@ virQEMUCapsFillDomainCaps(virQEMUDriverConfig *cfg,
     virQEMUCapsFillDomainFeatureS390PVCaps(qemuCaps, domCaps);
     virQEMUCapsFillDomainFeaturePS2Caps(qemuCaps, domCaps);
     virQEMUCapsFillDomainFeatureSGXCaps(qemuCaps, domCaps);
+    virQEMUCapsFillDomainFeatureCCACaps(qemuCaps, domCaps);
     virQEMUCapsFillDomainFeatureHypervCaps(qemuCaps, domCaps);
     virQEMUCapsFillDomainFeatureTDXCaps(qemuCaps, domCaps);
     virQEMUCapsFillDomainDeviceCryptoCaps(qemuCaps, crypto);

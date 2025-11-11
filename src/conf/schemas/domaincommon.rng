@@ -2052,6 +2052,9 @@
             <ref name="absFilePath"/>
           </attribute>
         </group>
+        <group>
+          <ref name="launchSecurityCCA"/>
+        </group>
       </choice>
     </element>
   </define>
@@ -3832,6 +3835,29 @@
         </attribute>
       </optional>
     </element>
+  </define>
+
+  <define name="launchSecurityCCA">
+    <attribute name="type">
+      <value>cca</value>
+    </attribute>
+    <interleave>
+      <optional>
+        <attribute name="measurement-log">
+          <ref name="virYesNo"/>
+        </attribute>
+      </optional>
+      <optional>
+        <element name="measurement-algo">
+          <data type="string"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="personalization-value">
+          <data type="string"/>
+        </element>
+      </optional>
+    </interleave>
   </define>
   <!--
       The interface options possible are:

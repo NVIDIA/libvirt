@@ -377,6 +377,9 @@
         <ref name="sgx"/>
       </optional>
       <optional>
+        <ref name="cca"/>
+      </optional>
+      <optional>
         <ref name="hyperv"/>
       </optional>
       <optional>
@@ -502,6 +505,39 @@
           </element>
         </optional>
       </optional>
+    </element>
+  </define>
+
+  <define name="cca">
+    <element name="cca">
+      <ref name="supported"/>
+      <interleave>
+        <optional>
+          <attribute name="measurement-log">
+            <ref name="virYesNo"/>
+          </attribute>
+        </optional>
+        <optional>
+          <element name="enum">
+            <attribute name="name">
+              <value>measurement-algo</value>
+            </attribute>
+            <group>
+              <element name="value">
+                <value>sha256</value>
+              </element>
+              <element name="value">
+                <value>sha512</value>
+              </element>
+            </group>
+          </element>
+        </optional>
+        <optional>
+          <element name="personalization-value">
+            <text/>
+          </element>
+        </optional>
+      </interleave>
     </element>
   </define>
 

@@ -962,6 +962,9 @@ virQEMUCapsGetSGXCapabilities(virQEMUCaps *qemuCaps);
 virDomainCapsFeatureHyperv *
 virQEMUCapsGetHypervCapabilities(virQEMUCaps *qemuCaps);
 
+virCCACapability *
+virQEMUCapsGetCCACapabilities(virQEMUCaps *qemuCaps);
+
 bool
 virQEMUCapsGetKVMSupportsSecureGuest(virQEMUCaps *qemuCaps) ATTRIBUTE_MOCKABLE;
 
