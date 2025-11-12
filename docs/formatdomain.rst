@@ -9767,6 +9767,11 @@ Arm Confidential Compute Architecture software stack:
     ...
   </domain>
 
+Note: Arm CCA guests must provide firmware via a ROM loader (for example,
+``<loader readonly='yes' type='rom'>/usr/share/qemu/QEMU_EFI.fd</loader>``).
+The pflash/NVRAM path is not supported, so any ``<nvram>`` element will be
+rejected.
+
 The ``<launchSecurity/>`` element accepts the following attributes:
 
 ``measurement-algo``

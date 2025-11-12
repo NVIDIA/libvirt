@@ -1516,6 +1516,23 @@ qemuValidateDomainDef(const virDomainDef *def,
             break;
 
         case VIR_DOMAIN_LAUNCH_SECURITY_CCA:
+            /* CCA firmware must be supplied via -bios (loader type='rom').
+             * The virt machine disables its flash devices for confidential
+             * guests, so reject any pflash/NVRAM configuration up front.
+             */
+            if (def->os.loader) {
+                if (def->os.loader->type != VIR_DOMAIN_LOADER_TYPE_ROM) {
+                    virReportError(VIR_ERR_CONFIG_UNSUPPORTED, "%s",
+                                   _("Arm CCA guests require a ROM firmware loader"));
+                    return -1;
+                }
+
+                if (def->os.loader->nvram || def->os.loader->nvramTemplate) {
+                    virReportError(VIR_ERR_CONFIG_UNSUPPORTED, "%s",
+                                   _("Arm CCA guests do not support NVRAM flash devices"));
+                    return -1;
+                }
+            }
             break;
 
         case VIR_DOMAIN_LAUNCH_SECURITY_NONE:
