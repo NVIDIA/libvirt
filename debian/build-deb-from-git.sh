@@ -13,7 +13,7 @@ fi
 git submodule update --init --recursive
 
 # Create upstream tag (required by gbp)
-version=$(dpkg-parsechangelog -SVersion | cut -d- -f1)
+version=$(dpkg-parsechangelog -SVersion | rev | cut -d- -f2- | rev)
 git tag -f upstream/${version} HEAD
 
 # Produce source package (including an orig tarball)
