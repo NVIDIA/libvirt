@@ -1,4 +1,4 @@
-libvirt (11.9.0+nvidia1-1) noble; urgency=medium
+libvirt (11.9.0+nvidia-unstable1-1) noble; urgency=medium
 
   * Update vEGM series to match RFCv2.
   * Update nested smmuv3 series to match v3 non-accel series.
