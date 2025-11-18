@@ -1503,6 +1503,7 @@
     <tdx supported='no'/>
     <sev supported='no'/>
     <sgx supported='no'/>
+    <cca supported='no'/>
     <hyperv supported='yes'>
       <enum name='features'>
         <value>relaxed</value>

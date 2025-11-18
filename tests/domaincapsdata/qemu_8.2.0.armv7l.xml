@@ -203,6 +203,7 @@
     <tdx supported='no'/>
     <sev supported='no'/>
     <sgx supported='no'/>
+    <cca supported='no'/>
     <launchSecurity supported='no'/>
   </features>
 </domainCapabilities>
