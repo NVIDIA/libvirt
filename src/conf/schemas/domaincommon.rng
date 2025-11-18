@@ -558,6 +558,9 @@
         <group>
           <ref name="launchSecurityTDX"/>
         </group>
+        <group>
+          <ref name="launchSecurityCCA"/>
+        </group>
       </choice>
     </element>
   </define>

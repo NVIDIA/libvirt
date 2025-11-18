@@ -753,6 +753,7 @@
         <section node='3' size='130304' unit='KiB'/>
       </sections>
     </sgx>
+    <cca supported='no'/>
     <hyperv supported='yes'>
       <enum name='features'>
         <value>relaxed</value>
