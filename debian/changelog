@@ -1,3 +1,9 @@
+libvirt (11.9.0+nvidia-unstable2-1) noble; urgency=medium
+
+  * Add initial CCA support.
+
+ -- Nathan Chen <nathanc@nvidia.com>  Tue, 18 Nov 2025 11:07:23 -0800
+
 libvirt (11.9.0+nvidia-unstable1-1) noble; urgency=medium
 
   * Update vEGM series to match RFCv2.
