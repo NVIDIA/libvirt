@@ -1,23 +1,15 @@
 <domainCapabilities>
   <path>/usr/bin/qemu-system-x86_64</path>
   <domain>kvm</domain>
-  <machine>pc-i440fx-10.0</machine>
+  <machine>pc-q35-7.0</machine>
   <arch>x86_64</arch>
-  <vcpu max='255'/>
+  <vcpu max='288'/>
   <iothreads supported='yes'/>
   <os supported='yes'>
     <enum name='firmware'>
       <value>bios</value>
       <value>efi</value>
     </enum>
-    <firmwareFeatures supported='yes'>
-      <enum name='secureBoot'>
-        <value>no</value>
-      </enum>
-      <enum name='enrolledKeys'>
-        <value>no</value>
-      </enum>
-    </firmwareFeatures>
     <loader supported='yes'>
       <value>/obviously/fake/firmware1.fd</value>
       <value>/obviously/fake/firmware2.fd</value>
@@ -30,10 +22,10 @@
         <value>no</value>
       </enum>
       <enum name='secure'>
+        <value>yes</value>
         <value>no</value>
       </enum>
     </loader>
-    <varstore supported='no'/>
   </os>
   <cpu>
     <mode name='host-passthrough' supported='yes'>
@@ -59,31 +51,17 @@
       <feature policy='require' name='stibp'/>
       <feature policy='require' name='arch-capabilities'/>
       <feature policy='require' name='ssbd'/>
+      <feature policy='require' name='xsaves'/>
       <feature policy='require' name='cmp_legacy'/>
-      <feature policy='require' name='overflow-recov'/>
-      <feature policy='require' name='succor'/>
       <feature policy='require' name='invtsc'/>
       <feature policy='require' name='amd-ssbd'/>
       <feature policy='require' name='virt-ssbd'/>
-      <feature policy='require' name='lbrv'/>
       <feature policy='require' name='tsc-scale'/>
-      <feature policy='require' name='vmcb-clean'/>
-      <feature policy='require' name='flushbyasid'/>
-      <feature policy='require' name='pause-filter'/>
-      <feature policy='require' name='pfthreshold'/>
-      <feature policy='require' name='v-vmsave-vmload'/>
-      <feature policy='require' name='vgif'/>
       <feature policy='require' name='svme-addr-chk'/>
-      <feature policy='require' name='lfence-always-serializing'/>
-      <feature policy='require' name='null-sel-clr-base'/>
-      <feature policy='require' name='ibpb-brtype'/>
       <feature policy='require' name='rdctl-no'/>
       <feature policy='require' name='skip-l1dfl-vmentry'/>
       <feature policy='require' name='mds-no'/>
       <feature policy='require' name='pschange-mc-no'/>
-      <feature policy='require' name='gds-no'/>
-      <feature policy='require' name='rfds-no'/>
-      <feature policy='disable' name='xsaves'/>
     </mode>
     <mode name='custom' supported='yes'>
       <model usable='yes' vendor='unknown' canonical='486-v1'>486</model>
@@ -256,93 +234,6 @@
         <feature name='pcid'/>
         <feature name='pku'/>
         <feature name='spec-ctrl'/>
-        <feature name='xsaves'/>
-      </blockers>
-      <model usable='no' vendor='Intel' canonical='ClearwaterForest-v1'>ClearwaterForest</model>
-      <blockers model='ClearwaterForest'>
-        <feature name='avx-ifma'/>
-        <feature name='avx-ne-convert'/>
-        <feature name='avx-vnni'/>
-        <feature name='avx-vnni-int16'/>
-        <feature name='avx-vnni-int8'/>
-        <feature name='bhi-ctrl'/>
-        <feature name='bhi-no'/>
-        <feature name='bus-lock-detect'/>
-        <feature name='cldemote'/>
-        <feature name='cmpccxadd'/>
-        <feature name='ddpd-u'/>
-        <feature name='erms'/>
-        <feature name='fbsdp-no'/>
-        <feature name='fsrm'/>
-        <feature name='fsrs'/>
-        <feature name='gfni'/>
-        <feature name='ibrs-all'/>
-        <feature name='intel-psfd'/>
-        <feature name='invpcid'/>
-        <feature name='ipred-ctrl'/>
-        <feature name='lam'/>
-        <feature name='mcdt-no'/>
-        <feature name='movdir64b'/>
-        <feature name='movdiri'/>
-        <feature name='pbrsb-no'/>
-        <feature name='pcid'/>
-        <feature name='pku'/>
-        <feature name='prefetchiti'/>
-        <feature name='psdp-no'/>
-        <feature name='rrsba-ctrl'/>
-        <feature name='sbdr-ssdp-no'/>
-        <feature name='serialize'/>
-        <feature name='sha512'/>
-        <feature name='sm3'/>
-        <feature name='sm4'/>
-        <feature name='spec-ctrl'/>
-        <feature name='ss'/>
-        <feature name='vaes'/>
-        <feature name='vpclmulqdq'/>
-        <feature name='xsaves'/>
-      </blockers>
-      <model usable='no' vendor='Intel'>ClearwaterForest-v1</model>
-      <blockers model='ClearwaterForest-v1'>
-        <feature name='avx-ifma'/>
-        <feature name='avx-ne-convert'/>
-        <feature name='avx-vnni'/>
-        <feature name='avx-vnni-int16'/>
-        <feature name='avx-vnni-int8'/>
-        <feature name='bhi-ctrl'/>
-        <feature name='bhi-no'/>
-        <feature name='bus-lock-detect'/>
-        <feature name='cldemote'/>
-        <feature name='cmpccxadd'/>
-        <feature name='ddpd-u'/>
-        <feature name='erms'/>
-        <feature name='fbsdp-no'/>
-        <feature name='fsrm'/>
-        <feature name='fsrs'/>
-        <feature name='gfni'/>
-        <feature name='ibrs-all'/>
-        <feature name='intel-psfd'/>
-        <feature name='invpcid'/>
-        <feature name='ipred-ctrl'/>
-        <feature name='lam'/>
-        <feature name='mcdt-no'/>
-        <feature name='movdir64b'/>
-        <feature name='movdiri'/>
-        <feature name='pbrsb-no'/>
-        <feature name='pcid'/>
-        <feature name='pku'/>
-        <feature name='prefetchiti'/>
-        <feature name='psdp-no'/>
-        <feature name='rrsba-ctrl'/>
-        <feature name='sbdr-ssdp-no'/>
-        <feature name='serialize'/>
-        <feature name='sha512'/>
-        <feature name='sm3'/>
-        <feature name='sm4'/>
-        <feature name='spec-ctrl'/>
-        <feature name='ss'/>
-        <feature name='vaes'/>
-        <feature name='vpclmulqdq'/>
-        <feature name='xsaves'/>
       </blockers>
       <model usable='yes' vendor='Intel' canonical='Conroe-v1'>Conroe</model>
       <model usable='yes' vendor='Intel'>Conroe-v1</model>
@@ -402,7 +293,6 @@
         <feature name='rtm'/>
         <feature name='spec-ctrl'/>
         <feature name='taa-no'/>
-        <feature name='xsaves'/>
       </blockers>
       <model usable='no' vendor='Intel' canonical='Denverton-v1'>Denverton</model>
       <blockers model='Denverton'>
@@ -425,75 +315,11 @@
       <blockers model='Denverton-v3'>
         <feature name='erms'/>
         <feature name='spec-ctrl'/>
-        <feature name='xsaves'/>
       </blockers>
       <model usable='yes' vendor='Hygon' canonical='Dhyana-v1'>Dhyana</model>
       <model usable='yes' vendor='Hygon'>Dhyana-v1</model>
-      <model usable='no' vendor='Hygon'>Dhyana-v2</model>
-      <blockers model='Dhyana-v2'>
-        <feature name='xsaves'/>
-      </blockers>
+      <model usable='yes' vendor='Hygon'>Dhyana-v2</model>
       <model usable='yes' vendor='AMD' canonical='EPYC-v1'>EPYC</model>
-      <model usable='no' vendor='AMD' canonical='EPYC-Genoa-v1'>EPYC-Genoa</model>
-      <blockers model='EPYC-Genoa'>
-        <feature name='amd-psfd'/>
-        <feature name='auto-ibrs'/>
-        <feature name='avx512-bf16'/>
-        <feature name='avx512-vpopcntdq'/>
-        <feature name='avx512bitalg'/>
-        <feature name='avx512bw'/>
-        <feature name='avx512cd'/>
-        <feature name='avx512dq'/>
-        <feature name='avx512f'/>
-        <feature name='avx512ifma'/>
-        <feature name='avx512vbmi'/>
-        <feature name='avx512vbmi2'/>
-        <feature name='avx512vl'/>
-        <feature name='avx512vnni'/>
-        <feature name='erms'/>
-        <feature name='fsrm'/>
-        <feature name='gfni'/>
-        <feature name='ibrs'/>
-        <feature name='invpcid'/>
-        <feature name='la57'/>
-        <feature name='no-nested-data-bp'/>
-        <feature name='pcid'/>
-        <feature name='pku'/>
-        <feature name='stibp-always-on'/>
-        <feature name='vaes'/>
-        <feature name='vpclmulqdq'/>
-        <feature name='xsaves'/>
-      </blockers>
-      <model usable='no' vendor='AMD'>EPYC-Genoa-v1</model>
-      <blockers model='EPYC-Genoa-v1'>
-        <feature name='amd-psfd'/>
-        <feature name='auto-ibrs'/>
-        <feature name='avx512-bf16'/>
-        <feature name='avx512-vpopcntdq'/>
-        <feature name='avx512bitalg'/>
-        <feature name='avx512bw'/>
-        <feature name='avx512cd'/>
-        <feature name='avx512dq'/>
-        <feature name='avx512f'/>
-        <feature name='avx512ifma'/>
-        <feature name='avx512vbmi'/>
-        <feature name='avx512vbmi2'/>
-        <feature name='avx512vl'/>
-        <feature name='avx512vnni'/>
-        <feature name='erms'/>
-        <feature name='fsrm'/>
-        <feature name='gfni'/>
-        <feature name='ibrs'/>
-        <feature name='invpcid'/>
-        <feature name='la57'/>
-        <feature name='no-nested-data-bp'/>
-        <feature name='pcid'/>
-        <feature name='pku'/>
-        <feature name='stibp-always-on'/>
-        <feature name='vaes'/>
-        <feature name='vpclmulqdq'/>
-        <feature name='xsaves'/>
-      </blockers>
       <model usable='yes' vendor='AMD' canonical='EPYC-v2'>EPYC-IBPB</model>
       <model usable='no' vendor='AMD' canonical='EPYC-Milan-v1'>EPYC-Milan</model>
       <blockers model='EPYC-Milan'>
@@ -503,7 +329,6 @@
         <feature name='invpcid'/>
         <feature name='pcid'/>
         <feature name='pku'/>
-        <feature name='xsaves'/>
       </blockers>
       <model usable='no' vendor='AMD'>EPYC-Milan-v1</model>
       <blockers model='EPYC-Milan-v1'>
@@ -513,210 +338,16 @@
         <feature name='invpcid'/>
         <feature name='pcid'/>
         <feature name='pku'/>
-        <feature name='xsaves'/>
       </blockers>
-      <model usable='no' vendor='AMD'>EPYC-Milan-v2</model>
-      <blockers model='EPYC-Milan-v2'>
-        <feature name='amd-psfd'/>
-        <feature name='erms'/>
-        <feature name='fsrm'/>
-        <feature name='ibrs'/>
-        <feature name='invpcid'/>
-        <feature name='no-nested-data-bp'/>
-        <feature name='pcid'/>
-        <feature name='pku'/>
-        <feature name='stibp-always-on'/>
-        <feature name='vaes'/>
-        <feature name='vpclmulqdq'/>
-        <feature name='xsaves'/>
-      </blockers>
-      <model usable='no' vendor='AMD' canonical='EPYC-Rome-v1'>EPYC-Rome</model>
-      <blockers model='EPYC-Rome'>
-        <feature name='xsaves'/>
-      </blockers>
-      <model usable='no' vendor='AMD'>EPYC-Rome-v1</model>
-      <blockers model='EPYC-Rome-v1'>
-        <feature name='xsaves'/>
-      </blockers>
+      <model usable='yes' vendor='AMD' canonical='EPYC-Rome-v1'>EPYC-Rome</model>
+      <model usable='yes' vendor='AMD'>EPYC-Rome-v1</model>
       <model usable='no' vendor='AMD'>EPYC-Rome-v2</model>
       <blockers model='EPYC-Rome-v2'>
-        <feature name='ibrs'/>
-        <feature name='xsaves'/>
-      </blockers>
-      <model usable='no' vendor='AMD'>EPYC-Rome-v3</model>
-      <blockers model='EPYC-Rome-v3'>
-        <feature name='ibrs'/>
-        <feature name='xsaves'/>
-      </blockers>
-      <model usable='no' vendor='AMD'>EPYC-Rome-v4</model>
-      <blockers model='EPYC-Rome-v4'>
         <feature name='ibrs'/>
       </blockers>
       <model usable='yes' vendor='AMD'>EPYC-v1</model>
       <model usable='yes' vendor='AMD'>EPYC-v2</model>
-      <model usable='no' vendor='AMD'>EPYC-v3</model>
-      <blockers model='EPYC-v3'>
-        <feature name='xsaves'/>
-      </blockers>
-      <model usable='no' vendor='AMD'>EPYC-v4</model>
-      <blockers model='EPYC-v4'>
-        <feature name='xsaves'/>
-      </blockers>
-      <model usable='no' vendor='Intel' canonical='GraniteRapids-v1'>GraniteRapids</model>
-      <blockers model='GraniteRapids'>
-        <feature name='amx-bf16'/>
-        <feature name='amx-fp16'/>
-        <feature name='amx-int8'/>
-        <feature name='amx-tile'/>
-        <feature name='avx-vnni'/>
-        <feature name='avx512-bf16'/>
-        <feature name='avx512-fp16'/>
-        <feature name='avx512-vpopcntdq'/>
-        <feature name='avx512bitalg'/>
-        <feature name='avx512bw'/>
-        <feature name='avx512cd'/>
-        <feature name='avx512dq'/>
-        <feature name='avx512f'/>
-        <feature name='avx512ifma'/>
-        <feature name='avx512vbmi'/>
-        <feature name='avx512vbmi2'/>
-        <feature name='avx512vl'/>
-        <feature name='avx512vnni'/>
-        <feature name='bus-lock-detect'/>
-        <feature name='erms'/>
-        <feature name='fbsdp-no'/>
-        <feature name='fsrc'/>
-        <feature name='fsrm'/>
-        <feature name='fsrs'/>
-        <feature name='fzrm'/>
-        <feature name='gfni'/>
-        <feature name='hle'/>
-        <feature name='ibrs-all'/>
-        <feature name='invpcid'/>
-        <feature name='la57'/>
-        <feature name='mcdt-no'/>
-        <feature name='pbrsb-no'/>
-        <feature name='pcid'/>
-        <feature name='pku'/>
-        <feature name='prefetchiti'/>
-        <feature name='psdp-no'/>
-        <feature name='rtm'/>
-        <feature name='sbdr-ssdp-no'/>
-        <feature name='serialize'/>
-        <feature name='spec-ctrl'/>
-        <feature name='taa-no'/>
-        <feature name='tsx-ldtrk'/>
-        <feature name='vaes'/>
-        <feature name='vpclmulqdq'/>
-        <feature name='xfd'/>
-        <feature name='xsaves'/>
-      </blockers>
-      <model usable='no' vendor='Intel'>GraniteRapids-v1</model>
-      <blockers model='GraniteRapids-v1'>
-        <feature name='amx-bf16'/>
-        <feature name='amx-fp16'/>
-        <feature name='amx-int8'/>
-        <feature name='amx-tile'/>
-        <feature name='avx-vnni'/>
-        <feature name='avx512-bf16'/>
-        <feature name='avx512-fp16'/>
-        <feature name='avx512-vpopcntdq'/>
-        <feature name='avx512bitalg'/>
-        <feature name='avx512bw'/>
-        <feature name='avx512cd'/>
-        <feature name='avx512dq'/>
-        <feature name='avx512f'/>
-        <feature name='avx512ifma'/>
-        <feature name='avx512vbmi'/>
-        <feature name='avx512vbmi2'/>
-        <feature name='avx512vl'/>
-        <feature name='avx512vnni'/>
-        <feature name='bus-lock-detect'/>
-        <feature name='erms'/>
-        <feature name='fbsdp-no'/>
-        <feature name='fsrc'/>
-        <feature name='fsrm'/>
-        <feature name='fsrs'/>
-        <feature name='fzrm'/>
-        <feature name='gfni'/>
-        <feature name='hle'/>
-        <feature name='ibrs-all'/>
-        <feature name='invpcid'/>
-        <feature name='la57'/>
-        <feature name='mcdt-no'/>
-        <feature name='pbrsb-no'/>
-        <feature name='pcid'/>
-        <feature name='pku'/>
-        <feature name='prefetchiti'/>
-        <feature name='psdp-no'/>
-        <feature name='rtm'/>
-        <feature name='sbdr-ssdp-no'/>
-        <feature name='serialize'/>
-        <feature name='spec-ctrl'/>
-        <feature name='taa-no'/>
-        <feature name='tsx-ldtrk'/>
-        <feature name='vaes'/>
-        <feature name='vpclmulqdq'/>
-        <feature name='xfd'/>
-        <feature name='xsaves'/>
-      </blockers>
-      <model usable='no' vendor='Intel'>GraniteRapids-v2</model>
-      <blockers model='GraniteRapids-v2'>
-        <feature name='amx-bf16'/>
-        <feature name='amx-fp16'/>
-        <feature name='amx-int8'/>
-        <feature name='amx-tile'/>
-        <feature name='avx-vnni'/>
-        <feature name='avx10'/>
-        <feature name='avx10-128'/>
-        <feature name='avx10-256'/>
-        <feature name='avx10-512'/>
-        <feature name='avx512-bf16'/>
-        <feature name='avx512-fp16'/>
-        <feature name='avx512-vpopcntdq'/>
-        <feature name='avx512bitalg'/>
-        <feature name='avx512bw'/>
-        <feature name='avx512cd'/>
-        <feature name='avx512dq'/>
-        <feature name='avx512f'/>
-        <feature name='avx512ifma'/>
-        <feature name='avx512vbmi'/>
-        <feature name='avx512vbmi2'/>
-        <feature name='avx512vl'/>
-        <feature name='avx512vnni'/>
-        <feature name='bus-lock-detect'/>
-        <feature name='cldemote'/>
-        <feature name='erms'/>
-        <feature name='fbsdp-no'/>
-        <feature name='fsrc'/>
-        <feature name='fsrm'/>
-        <feature name='fsrs'/>
-        <feature name='fzrm'/>
-        <feature name='gfni'/>
-        <feature name='hle'/>
-        <feature name='ibrs-all'/>
-        <feature name='invpcid'/>
-        <feature name='la57'/>
-        <feature name='mcdt-no'/>
-        <feature name='movdir64b'/>
-        <feature name='movdiri'/>
-        <feature name='pbrsb-no'/>
-        <feature name='pcid'/>
-        <feature name='pku'/>
-        <feature name='prefetchiti'/>
-        <feature name='psdp-no'/>
-        <feature name='rtm'/>
-        <feature name='sbdr-ssdp-no'/>
-        <feature name='serialize'/>
-        <feature name='spec-ctrl'/>
-        <feature name='ss'/>
-        <feature name='taa-no'/>
-        <feature name='tsx-ldtrk'/>
-        <feature name='vaes'/>
-        <feature name='vpclmulqdq'/>
-        <feature name='xfd'/>
-        <feature name='xsaves'/>
-      </blockers>
+      <model usable='yes' vendor='AMD'>EPYC-v3</model>
       <model usable='no' vendor='Intel' canonical='Haswell-v1'>Haswell</model>
       <blockers model='Haswell'>
         <feature name='erms'/>
@@ -776,6 +407,40 @@
         <feature name='invpcid'/>
         <feature name='pcid'/>
         <feature name='spec-ctrl'/>
+      </blockers>
+      <model usable='no' deprecated='yes' vendor='Intel'>Icelake-Client</model>
+      <blockers model='Icelake-Client'>
+        <feature name='avx512-vpopcntdq'/>
+        <feature name='avx512bitalg'/>
+        <feature name='avx512vbmi'/>
+        <feature name='avx512vbmi2'/>
+        <feature name='avx512vnni'/>
+        <feature name='erms'/>
+        <feature name='gfni'/>
+        <feature name='hle'/>
+        <feature name='invpcid'/>
+        <feature name='pcid'/>
+        <feature name='pku'/>
+        <feature name='rtm'/>
+        <feature name='spec-ctrl'/>
+        <feature name='vaes'/>
+        <feature name='vpclmulqdq'/>
+      </blockers>
+      <model usable='no' deprecated='yes' vendor='Intel'>Icelake-Client-noTSX</model>
+      <blockers model='Icelake-Client-noTSX'>
+        <feature name='avx512-vpopcntdq'/>
+        <feature name='avx512bitalg'/>
+        <feature name='avx512vbmi'/>
+        <feature name='avx512vbmi2'/>
+        <feature name='avx512vnni'/>
+        <feature name='erms'/>
+        <feature name='gfni'/>
+        <feature name='invpcid'/>
+        <feature name='pcid'/>
+        <feature name='pku'/>
+        <feature name='spec-ctrl'/>
+        <feature name='vaes'/>
+        <feature name='vpclmulqdq'/>
       </blockers>
       <model usable='no' vendor='Intel' canonical='Icelake-Server-v1'>Icelake-Server</model>
       <blockers model='Icelake-Server'>
@@ -944,7 +609,6 @@
         <feature name='taa-no'/>
         <feature name='vaes'/>
         <feature name='vpclmulqdq'/>
-        <feature name='xsaves'/>
       </blockers>
       <model usable='no' vendor='Intel'>Icelake-Server-v6</model>
       <blockers model='Icelake-Server-v6'>
@@ -971,36 +635,6 @@
         <feature name='taa-no'/>
         <feature name='vaes'/>
         <feature name='vpclmulqdq'/>
-        <feature name='xsaves'/>
-      </blockers>
-      <model usable='no' vendor='Intel'>Icelake-Server-v7</model>
-      <blockers model='Icelake-Server-v7'>
-        <feature name='avx512-vpopcntdq'/>
-        <feature name='avx512bitalg'/>
-        <feature name='avx512bw'/>
-        <feature name='avx512cd'/>
-        <feature name='avx512dq'/>
-        <feature name='avx512f'/>
-        <feature name='avx512ifma'/>
-        <feature name='avx512vbmi'/>
-        <feature name='avx512vbmi2'/>
-        <feature name='avx512vl'/>
-        <feature name='avx512vnni'/>
-        <feature name='erms'/>
-        <feature name='fsrm'/>
-        <feature name='gfni'/>
-        <feature name='hle'/>
-        <feature name='ibrs-all'/>
-        <feature name='invpcid'/>
-        <feature name='la57'/>
-        <feature name='pcid'/>
-        <feature name='pku'/>
-        <feature name='rtm'/>
-        <feature name='spec-ctrl'/>
-        <feature name='taa-no'/>
-        <feature name='vaes'/>
-        <feature name='vpclmulqdq'/>
-        <feature name='xsaves'/>
       </blockers>
       <model usable='no' vendor='Intel' canonical='IvyBridge-v1'>IvyBridge</model>
       <blockers model='IvyBridge'>
@@ -1094,274 +728,6 @@
       <blockers model='SandyBridge-v2'>
         <feature name='spec-ctrl'/>
       </blockers>
-      <model usable='no' vendor='Intel' canonical='SapphireRapids-v1'>SapphireRapids</model>
-      <blockers model='SapphireRapids'>
-        <feature name='amx-bf16'/>
-        <feature name='amx-int8'/>
-        <feature name='amx-tile'/>
-        <feature name='avx-vnni'/>
-        <feature name='avx512-bf16'/>
-        <feature name='avx512-fp16'/>
-        <feature name='avx512-vpopcntdq'/>
-        <feature name='avx512bitalg'/>
-        <feature name='avx512bw'/>
-        <feature name='avx512cd'/>
-        <feature name='avx512dq'/>
-        <feature name='avx512f'/>
-        <feature name='avx512ifma'/>
-        <feature name='avx512vbmi'/>
-        <feature name='avx512vbmi2'/>
-        <feature name='avx512vl'/>
-        <feature name='avx512vnni'/>
-        <feature name='bus-lock-detect'/>
-        <feature name='erms'/>
-        <feature name='fsrc'/>
-        <feature name='fsrm'/>
-        <feature name='fsrs'/>
-        <feature name='fzrm'/>
-        <feature name='gfni'/>
-        <feature name='hle'/>
-        <feature name='ibrs-all'/>
-        <feature name='invpcid'/>
-        <feature name='la57'/>
-        <feature name='pcid'/>
-        <feature name='pku'/>
-        <feature name='rtm'/>
-        <feature name='serialize'/>
-        <feature name='spec-ctrl'/>
-        <feature name='taa-no'/>
-        <feature name='tsx-ldtrk'/>
-        <feature name='vaes'/>
-        <feature name='vpclmulqdq'/>
-        <feature name='xfd'/>
-        <feature name='xsaves'/>
-      </blockers>
-      <model usable='no' vendor='Intel'>SapphireRapids-v1</model>
-      <blockers model='SapphireRapids-v1'>
-        <feature name='amx-bf16'/>
-        <feature name='amx-int8'/>
-        <feature name='amx-tile'/>
-        <feature name='avx-vnni'/>
-        <feature name='avx512-bf16'/>
-        <feature name='avx512-fp16'/>
-        <feature name='avx512-vpopcntdq'/>
-        <feature name='avx512bitalg'/>
-        <feature name='avx512bw'/>
-        <feature name='avx512cd'/>
-        <feature name='avx512dq'/>
-        <feature name='avx512f'/>
-        <feature name='avx512ifma'/>
-        <feature name='avx512vbmi'/>
-        <feature name='avx512vbmi2'/>
-        <feature name='avx512vl'/>
-        <feature name='avx512vnni'/>
-        <feature name='bus-lock-detect'/>
-        <feature name='erms'/>
-        <feature name='fsrc'/>
-        <feature name='fsrm'/>
-        <feature name='fsrs'/>
-        <feature name='fzrm'/>
-        <feature name='gfni'/>
-        <feature name='hle'/>
-        <feature name='ibrs-all'/>
-        <feature name='invpcid'/>
-        <feature name='la57'/>
-        <feature name='pcid'/>
-        <feature name='pku'/>
-        <feature name='rtm'/>
-        <feature name='serialize'/>
-        <feature name='spec-ctrl'/>
-        <feature name='taa-no'/>
-        <feature name='tsx-ldtrk'/>
-        <feature name='vaes'/>
-        <feature name='vpclmulqdq'/>
-        <feature name='xfd'/>
-        <feature name='xsaves'/>
-      </blockers>
-      <model usable='no' vendor='Intel'>SapphireRapids-v2</model>
-      <blockers model='SapphireRapids-v2'>
-        <feature name='amx-bf16'/>
-        <feature name='amx-int8'/>
-        <feature name='amx-tile'/>
-        <feature name='avx-vnni'/>
-        <feature name='avx512-bf16'/>
-        <feature name='avx512-fp16'/>
-        <feature name='avx512-vpopcntdq'/>
-        <feature name='avx512bitalg'/>
-        <feature name='avx512bw'/>
-        <feature name='avx512cd'/>
-        <feature name='avx512dq'/>
-        <feature name='avx512f'/>
-        <feature name='avx512ifma'/>
-        <feature name='avx512vbmi'/>
-        <feature name='avx512vbmi2'/>
-        <feature name='avx512vl'/>
-        <feature name='avx512vnni'/>
-        <feature name='bus-lock-detect'/>
-        <feature name='erms'/>
-        <feature name='fbsdp-no'/>
-        <feature name='fsrc'/>
-        <feature name='fsrm'/>
-        <feature name='fsrs'/>
-        <feature name='fzrm'/>
-        <feature name='gfni'/>
-        <feature name='hle'/>
-        <feature name='ibrs-all'/>
-        <feature name='invpcid'/>
-        <feature name='la57'/>
-        <feature name='pcid'/>
-        <feature name='pku'/>
-        <feature name='psdp-no'/>
-        <feature name='rtm'/>
-        <feature name='sbdr-ssdp-no'/>
-        <feature name='serialize'/>
-        <feature name='spec-ctrl'/>
-        <feature name='taa-no'/>
-        <feature name='tsx-ldtrk'/>
-        <feature name='vaes'/>
-        <feature name='vpclmulqdq'/>
-        <feature name='xfd'/>
-        <feature name='xsaves'/>
-      </blockers>
-      <model usable='no' vendor='Intel'>SapphireRapids-v3</model>
-      <blockers model='SapphireRapids-v3'>
-        <feature name='amx-bf16'/>
-        <feature name='amx-int8'/>
-        <feature name='amx-tile'/>
-        <feature name='avx-vnni'/>
-        <feature name='avx512-bf16'/>
-        <feature name='avx512-fp16'/>
-        <feature name='avx512-vpopcntdq'/>
-        <feature name='avx512bitalg'/>
-        <feature name='avx512bw'/>
-        <feature name='avx512cd'/>
-        <feature name='avx512dq'/>
-        <feature name='avx512f'/>
-        <feature name='avx512ifma'/>
-        <feature name='avx512vbmi'/>
-        <feature name='avx512vbmi2'/>
-        <feature name='avx512vl'/>
-        <feature name='avx512vnni'/>
-        <feature name='bus-lock-detect'/>
-        <feature name='cldemote'/>
-        <feature name='erms'/>
-        <feature name='fbsdp-no'/>
-        <feature name='fsrc'/>
-        <feature name='fsrm'/>
-        <feature name='fsrs'/>
-        <feature name='fzrm'/>
-        <feature name='gfni'/>
-        <feature name='hle'/>
-        <feature name='ibrs-all'/>
-        <feature name='invpcid'/>
-        <feature name='la57'/>
-        <feature name='movdir64b'/>
-        <feature name='movdiri'/>
-        <feature name='pcid'/>
-        <feature name='pku'/>
-        <feature name='psdp-no'/>
-        <feature name='rtm'/>
-        <feature name='sbdr-ssdp-no'/>
-        <feature name='serialize'/>
-        <feature name='spec-ctrl'/>
-        <feature name='ss'/>
-        <feature name='taa-no'/>
-        <feature name='tsx-ldtrk'/>
-        <feature name='vaes'/>
-        <feature name='vpclmulqdq'/>
-        <feature name='xfd'/>
-        <feature name='xsaves'/>
-      </blockers>
-      <model usable='no' vendor='Intel' canonical='SierraForest-v1'>SierraForest</model>
-      <blockers model='SierraForest'>
-        <feature name='avx-ifma'/>
-        <feature name='avx-ne-convert'/>
-        <feature name='avx-vnni'/>
-        <feature name='avx-vnni-int8'/>
-        <feature name='bus-lock-detect'/>
-        <feature name='cmpccxadd'/>
-        <feature name='erms'/>
-        <feature name='fbsdp-no'/>
-        <feature name='fsrm'/>
-        <feature name='fsrs'/>
-        <feature name='gfni'/>
-        <feature name='ibrs-all'/>
-        <feature name='invpcid'/>
-        <feature name='mcdt-no'/>
-        <feature name='pbrsb-no'/>
-        <feature name='pcid'/>
-        <feature name='pku'/>
-        <feature name='psdp-no'/>
-        <feature name='sbdr-ssdp-no'/>
-        <feature name='serialize'/>
-        <feature name='spec-ctrl'/>
-        <feature name='vaes'/>
-        <feature name='vpclmulqdq'/>
-        <feature name='xsaves'/>
-      </blockers>
-      <model usable='no' vendor='Intel'>SierraForest-v1</model>
-      <blockers model='SierraForest-v1'>
-        <feature name='avx-ifma'/>
-        <feature name='avx-ne-convert'/>
-        <feature name='avx-vnni'/>
-        <feature name='avx-vnni-int8'/>
-        <feature name='bus-lock-detect'/>
-        <feature name='cmpccxadd'/>
-        <feature name='erms'/>
-        <feature name='fbsdp-no'/>
-        <feature name='fsrm'/>
-        <feature name='fsrs'/>
-        <feature name='gfni'/>
-        <feature name='ibrs-all'/>
-        <feature name='invpcid'/>
-        <feature name='mcdt-no'/>
-        <feature name='pbrsb-no'/>
-        <feature name='pcid'/>
-        <feature name='pku'/>
-        <feature name='psdp-no'/>
-        <feature name='sbdr-ssdp-no'/>
-        <feature name='serialize'/>
-        <feature name='spec-ctrl'/>
-        <feature name='vaes'/>
-        <feature name='vpclmulqdq'/>
-        <feature name='xsaves'/>
-      </blockers>
-      <model usable='no' vendor='Intel'>SierraForest-v2</model>
-      <blockers model='SierraForest-v2'>
-        <feature name='avx-ifma'/>
-        <feature name='avx-ne-convert'/>
-        <feature name='avx-vnni'/>
-        <feature name='avx-vnni-int8'/>
-        <feature name='bhi-ctrl'/>
-        <feature name='bus-lock-detect'/>
-        <feature name='cldemote'/>
-        <feature name='cmpccxadd'/>
-        <feature name='erms'/>
-        <feature name='fbsdp-no'/>
-        <feature name='fsrm'/>
-        <feature name='fsrs'/>
-        <feature name='gfni'/>
-        <feature name='ibrs-all'/>
-        <feature name='intel-psfd'/>
-        <feature name='invpcid'/>
-        <feature name='ipred-ctrl'/>
-        <feature name='lam'/>
-        <feature name='mcdt-no'/>
-        <feature name='movdir64b'/>
-        <feature name='movdiri'/>
-        <feature name='pbrsb-no'/>
-        <feature name='pcid'/>
-        <feature name='pku'/>
-        <feature name='psdp-no'/>
-        <feature name='rrsba-ctrl'/>
-        <feature name='sbdr-ssdp-no'/>
-        <feature name='serialize'/>
-        <feature name='spec-ctrl'/>
-        <feature name='ss'/>
-        <feature name='vaes'/>
-        <feature name='vpclmulqdq'/>
-        <feature name='xsaves'/>
-      </blockers>
       <model usable='no' vendor='Intel' canonical='Skylake-Client-v1'>Skylake-Client</model>
       <blockers model='Skylake-Client'>
         <feature name='erms'/>
@@ -1416,7 +782,6 @@
         <feature name='invpcid'/>
         <feature name='pcid'/>
         <feature name='spec-ctrl'/>
-        <feature name='xsaves'/>
       </blockers>
       <model usable='no' vendor='Intel' canonical='Skylake-Server-v1'>Skylake-Server</model>
       <blockers model='Skylake-Server'>
@@ -1527,7 +892,6 @@
         <feature name='pcid'/>
         <feature name='pku'/>
         <feature name='spec-ctrl'/>
-        <feature name='xsaves'/>
       </blockers>
       <model usable='no' vendor='Intel' canonical='Snowridge-v1'>Snowridge</model>
       <blockers model='Snowridge'>
@@ -1574,7 +938,6 @@
         <feature name='movdiri'/>
         <feature name='spec-ctrl'/>
         <feature name='split-lock-detect'/>
-        <feature name='xsaves'/>
       </blockers>
       <model usable='no' vendor='Intel'>Snowridge-v4</model>
       <blockers model='Snowridge-v4'>
@@ -1584,7 +947,6 @@
         <feature name='movdir64b'/>
         <feature name='movdiri'/>
         <feature name='spec-ctrl'/>
-        <feature name='xsaves'/>
       </blockers>
       <model usable='yes' vendor='Intel' canonical='Westmere-v1'>Westmere</model>
       <model usable='no' vendor='Intel' canonical='Westmere-v2'>Westmere-IBRS</model>
@@ -1595,42 +957,6 @@
       <model usable='no' vendor='Intel'>Westmere-v2</model>
       <blockers model='Westmere-v2'>
         <feature name='spec-ctrl'/>
-      </blockers>
-      <model usable='no' vendor='Zhaoxin CentaurHauls' canonical='YongFeng-v1'>YongFeng</model>
-      <blockers model='YongFeng'>
-        <feature name='ace2'/>
-        <feature name='invpcid'/>
-        <feature name='pcid'/>
-        <feature name='phe'/>
-        <feature name='phe-en'/>
-        <feature name='pku'/>
-        <feature name='pmm'/>
-        <feature name='pmm-en'/>
-        <feature name='spec-ctrl'/>
-        <feature name='ss'/>
-        <feature name='ssb-no'/>
-        <feature name='xcrypt'/>
-        <feature name='xcrypt-en'/>
-        <feature name='xstore'/>
-        <feature name='xstore-en'/>
-      </blockers>
-      <model usable='no' vendor='Zhaoxin CentaurHauls'>YongFeng-v1</model>
-      <blockers model='YongFeng-v1'>
-        <feature name='ace2'/>
-        <feature name='invpcid'/>
-        <feature name='pcid'/>
-        <feature name='phe'/>
-        <feature name='phe-en'/>
-        <feature name='pku'/>
-        <feature name='pmm'/>
-        <feature name='pmm-en'/>
-        <feature name='spec-ctrl'/>
-        <feature name='ss'/>
-        <feature name='ssb-no'/>
-        <feature name='xcrypt'/>
-        <feature name='xcrypt-en'/>
-        <feature name='xstore'/>
-        <feature name='xstore-en'/>
       </blockers>
       <model usable='no' vendor='AMD' canonical='athlon-v1'>athlon</model>
       <blockers model='athlon'>
@@ -1708,7 +1034,6 @@
         <value>lun</value>
       </enum>
       <enum name='bus'>
-        <value>ide</value>
         <value>fdc</value>
         <value>scsi</value>
         <value>virtio</value>
@@ -1764,10 +1089,6 @@
         <value>default</value>
         <value>vfio</value>
       </enum>
-      <enum name='iommufd'>
-        <value>yes</value>
-        <value>no</value>
-      </enum>
     </hostdev>
     <rng supported='yes'>
       <enum name='model'>
@@ -1784,6 +1105,7 @@
     <filesystem supported='yes'>
       <enum name='driverType'>
         <value>path</value>
+        <value>handle</value>
         <value>virtiofs</value>
       </enum>
     </filesystem>
@@ -1822,13 +1144,11 @@
       </enum>
       <enum name='backendModel'>
         <value>builtin</value>
-        <value>lkcf</value>
       </enum>
     </crypto>
     <interface supported='yes'>
       <enum name='backendType'>
         <value>default</value>
-        <value>passt</value>
       </enum>
     </interface>
     <panic supported='yes'>
@@ -1863,40 +1183,20 @@
     <genid supported='yes'/>
     <backingStoreInput supported='yes'/>
     <backup supported='yes'/>
-    <async-teardown supported='yes'/>
-    <s390-pv supported='no'/>
+    <async-teardown supported='no'/>
     <ps2 supported='yes'/>
-    <tdx supported='no'/>
     <sev supported='no'/>
-    <sgx supported='no'/>
+    <sgx supported='yes'>
+      <flc>no</flc>
+      <sgx1>yes</sgx1>
+      <sgx2>no</sgx2>
+      <section_size unit='KiB'>524288</section_size>
+      <sections>
+        <section node='0' size='262144' unit='KiB'/>
+        <section node='1' size='262144' unit='KiB'/>
+      </sections>
+    </sgx>
     <cca supported='no'/>
-    <hyperv supported='yes'>
-      <enum name='features'>
-        <value>relaxed</value>
-        <value>vapic</value>
-        <value>spinlocks</value>
-        <value>vpindex</value>
-        <value>runtime</value>
-        <value>synic</value>
-        <value>stimer</value>
-        <value>reset</value>
-        <value>vendor_id</value>
-        <value>frequencies</value>
-        <value>reenlightenment</value>
-        <value>tlbflush</value>
-        <value>ipi</value>
-        <value>avic</value>
-        <value>emsr_bitmap</value>
-        <value>xmm_input</value>
-      </enum>
-      <defaults>
-        <spinlocks>4095</spinlocks>
-        <stimer_direct>on</stimer_direct>
-        <tlbflush_direct>on</tlbflush_direct>
-        <tlbflush_extended>on</tlbflush_extended>
-        <vendor_id>Linux KVM Hv</vendor_id>
-      </defaults>
-    </hyperv>
     <launchSecurity supported='no'/>
   </features>
 </domainCapabilities>
