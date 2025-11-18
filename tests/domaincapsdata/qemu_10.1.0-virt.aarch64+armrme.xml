@@ -1,9 +1,9 @@
 <domainCapabilities>
-  <path>/usr/bin/qemu-system-loongarch64</path>
-  <domain>qemu</domain>
-  <machine>virt</machine>
-  <arch>loongarch64</arch>
-  <vcpu max='256'/>
+  <path>/usr/bin/qemu-system-aarch64</path>
+  <domain>kvm</domain>
+  <machine>virt-10.0</machine>
+  <arch>aarch64</arch>
+  <vcpu max='512'/>
   <iothreads supported='yes'/>
   <os supported='yes'>
     <enum name='firmware'>
@@ -26,7 +26,11 @@
     </loader>
   </os>
   <cpu>
-    <mode name='host-passthrough' supported='no'/>
+    <mode name='host-passthrough' supported='yes'>
+      <enum name='hostPassthroughMigratable'>
+        <value>off</value>
+      </enum>
+    </mode>
     <mode name='maximum' supported='yes'>
       <enum name='maximumMigratable'>
         <value>on</value>
@@ -35,9 +39,53 @@
     </mode>
     <mode name='host-model' supported='no'/>
     <mode name='custom' supported='yes'>
-      <model usable='unknown' vendor='unknown'>la132</model>
-      <model usable='unknown' vendor='unknown'>la464</model>
+      <model usable='unknown' vendor='unknown'>a64fx</model>
+      <model usable='unknown' vendor='unknown'>arm1026</model>
+      <model usable='unknown' vendor='unknown'>arm1136</model>
+      <model usable='unknown' vendor='unknown'>arm1136-r2</model>
+      <model usable='unknown' vendor='unknown'>arm1176</model>
+      <model usable='unknown' vendor='unknown'>arm11mpcore</model>
+      <model usable='unknown' vendor='unknown'>arm926</model>
+      <model usable='unknown' vendor='unknown'>arm946</model>
+      <model usable='unknown' vendor='unknown'>cortex-a15</model>
+      <model usable='unknown' vendor='unknown'>cortex-a35</model>
+      <model usable='unknown' vendor='unknown'>cortex-a53</model>
+      <model usable='unknown' vendor='unknown'>cortex-a55</model>
+      <model usable='unknown' vendor='unknown'>cortex-a57</model>
+      <model usable='unknown' vendor='unknown'>cortex-a7</model>
+      <model usable='unknown' vendor='unknown'>cortex-a710</model>
+      <model usable='unknown' vendor='unknown'>cortex-a72</model>
+      <model usable='unknown' vendor='unknown'>cortex-a76</model>
+      <model usable='unknown' vendor='unknown'>cortex-a8</model>
+      <model usable='unknown' vendor='unknown'>cortex-a9</model>
+      <model usable='unknown' vendor='unknown'>cortex-m0</model>
+      <model usable='unknown' vendor='unknown'>cortex-m3</model>
+      <model usable='unknown' vendor='unknown'>cortex-m33</model>
+      <model usable='unknown' vendor='unknown'>cortex-m4</model>
+      <model usable='unknown' vendor='unknown'>cortex-m55</model>
+      <model usable='unknown' vendor='unknown'>cortex-m7</model>
+      <model usable='unknown' vendor='unknown'>cortex-r5</model>
+      <model usable='unknown' vendor='unknown'>cortex-r52</model>
+      <model usable='unknown' vendor='unknown'>cortex-r5f</model>
       <model usable='unknown' vendor='unknown'>max</model>
+      <model usable='unknown' vendor='unknown'>neoverse-n1</model>
+      <model usable='unknown' vendor='unknown'>neoverse-n2</model>
+      <model usable='unknown' vendor='unknown'>neoverse-v1</model>
+      <model usable='unknown' vendor='unknown'>pxa250</model>
+      <model usable='unknown' vendor='unknown'>pxa255</model>
+      <model usable='unknown' vendor='unknown'>pxa260</model>
+      <model usable='unknown' vendor='unknown'>pxa261</model>
+      <model usable='unknown' vendor='unknown'>pxa262</model>
+      <model usable='unknown' vendor='unknown'>pxa270</model>
+      <model usable='unknown' vendor='unknown'>pxa270-a0</model>
+      <model usable='unknown' vendor='unknown'>pxa270-a1</model>
+      <model usable='unknown' vendor='unknown'>pxa270-b0</model>
+      <model usable='unknown' vendor='unknown'>pxa270-b1</model>
+      <model usable='unknown' vendor='unknown'>pxa270-c0</model>
+      <model usable='unknown' vendor='unknown'>pxa270-c5</model>
+      <model usable='unknown' vendor='unknown'>sa1100</model>
+      <model usable='unknown' vendor='unknown'>sa1110</model>
+      <model usable='unknown' vendor='unknown'>ti925t</model>
     </mode>
   </cpu>
   <memoryBacking supported='yes'>
@@ -59,7 +107,6 @@
         <value>virtio</value>
         <value>usb</value>
         <value>sata</value>
-        <value>nvme</value>
       </enum>
       <enum name='model'>
         <value>virtio</value>
@@ -69,10 +116,7 @@
     </disk>
     <graphics supported='yes'>
       <enum name='type'>
-        <value>sdl</value>
-        <value>vnc</value>
         <value>rdp</value>
-        <value>spice</value>
         <value>dbus</value>
       </enum>
     </graphics>
@@ -126,17 +170,24 @@
         <value>virtiofs</value>
       </enum>
     </filesystem>
-    <tpm supported='no'/>
-    <redirdev supported='yes'>
-      <enum name='bus'>
-        <value>usb</value>
+    <tpm supported='yes'>
+      <enum name='model'>
+        <value>tpm-tis</value>
       </enum>
-    </redirdev>
+      <enum name='backendModel'>
+        <value>passthrough</value>
+        <value>emulator</value>
+        <value>external</value>
+      </enum>
+      <enum name='backendVersion'>
+        <value>2.0</value>
+      </enum>
+    </tpm>
+    <redirdev supported='no'/>
     <channel supported='yes'>
       <enum name='type'>
         <value>pty</value>
         <value>unix</value>
-        <value>spicevmc</value>
       </enum>
     </channel>
     <crypto supported='yes'>
@@ -148,7 +199,6 @@
       </enum>
       <enum name='backendModel'>
         <value>builtin</value>
-        <value>lkcf</value>
       </enum>
     </crypto>
     <interface supported='yes'>
@@ -174,15 +224,16 @@
         <value>udp</value>
         <value>tcp</value>
         <value>unix</value>
-        <value>spicevmc</value>
-        <value>spiceport</value>
-        <value>qemu-vdagent</value>
         <value>dbus</value>
       </enum>
     </console>
   </devices>
   <features>
-    <gic supported='no'/>
+    <gic supported='yes'>
+      <enum name='version'>
+        <value>3</value>
+      </enum>
+    </gic>
     <vmcoreinfo supported='yes'/>
     <genid supported='no'/>
     <backingStoreInput supported='yes'/>
@@ -191,7 +242,16 @@
     <ps2 supported='no'/>
     <sev supported='no'/>
     <sgx supported='no'/>
-    <cca supported='no'/>
-    <launchSecurity supported='no'/>
+    <cca supported='yes'>
+      <enum name='measurement-algo'>
+        <value>sha256</value>
+        <value>sha512</value>
+      </enum>
+    </cca>
+    <launchSecurity supported='yes'>
+      <enum name='sectype'>
+        <value>cca</value>
+      </enum>
+    </launchSecurity>
   </features>
 </domainCapabilities>

@@ -80,5 +80,6 @@
     <genid supported='no'/>
     <sev supported='no'/>
     <sgx supported='no'/>
+    <cca supported='no'/>
   </features>
 </domainCapabilities>

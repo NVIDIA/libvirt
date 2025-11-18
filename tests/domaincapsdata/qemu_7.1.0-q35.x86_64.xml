@@ -1154,6 +1154,7 @@
     <ps2 supported='yes'/>
     <sev supported='no'/>
     <sgx supported='no'/>
+    <cca supported='no'/>
     <launchSecurity supported='no'/>
   </features>
 </domainCapabilities>

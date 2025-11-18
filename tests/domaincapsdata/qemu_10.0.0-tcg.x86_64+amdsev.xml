@@ -1811,6 +1811,7 @@
       <cpu0Id>BlAwmcr4Ruya3YvEGe2EBxuWjMAfIYolslNNM92RsIKxLkWDDRqivqSBOD+qQRCYS9joBYSHMD1g+rmjY+MmVw==</cpu0Id>
     </sev>
     <sgx supported='no'/>
+    <cca supported='no'/>
     <hyperv supported='yes'>
       <enum name='features'>
         <value>relaxed</value>

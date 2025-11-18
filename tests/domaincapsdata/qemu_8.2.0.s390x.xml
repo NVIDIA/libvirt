@@ -449,6 +449,7 @@
     <ps2 supported='no'/>
     <sev supported='no'/>
     <sgx supported='no'/>
+    <cca supported='no'/>
     <launchSecurity supported='yes'>
       <enum name='sectype'>
         <value>s390-pv</value>
