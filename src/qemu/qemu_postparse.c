@@ -1863,6 +1863,46 @@ qemuDomainDefNumaCPUsPostParse(virDomainDef *def,
 }
 
 
+/**
+ * qemuDomainDefCCAFirmwarePostParse:
+ * @def: domain definition
+ *
+ * For CCA (Confidential Compute Architecture) guests, automatically convert
+ * pflash loader to ROM. CCA-enabled ARM virt machine doesn't support pflash
+ * devices when realm mode is active. This allows users to use the same domain
+ * XML for both CCA and non-CCA guests by simply toggling launchSecurity.
+ */
+static void
+qemuDomainDefCCAFirmwarePostParse(virDomainDef *def)
+{
+    /* Only process CCA guests with a loader defined */
+    if (!def->sec ||
+        def->sec->sectype != VIR_DOMAIN_LAUNCH_SECURITY_CCA ||
+        !def->os.loader)
+        return;
+
+    /* Auto-convert pflash to ROM for CCA compatibility */
+    if (def->os.loader->type == VIR_DOMAIN_LOADER_TYPE_PFLASH) {
+        VIR_INFO("Converting pflash loader to ROM for CCA guest '%s'", def->name);
+        def->os.loader->type = VIR_DOMAIN_LOADER_TYPE_ROM;
+        def->os.loader->readonly = VIR_TRISTATE_BOOL_YES;
+
+        /* Clear NVRAM - it's incompatible with ROM loaders */
+        if (def->os.loader->nvram) {
+            VIR_WARN("Ignoring NVRAM configuration for CCA guest '%s' (ROM loader does not support NVRAM)",
+                     def->name);
+            g_clear_pointer(&def->os.loader->nvram, virObjectUnref);
+        }
+
+        if (def->os.loader->nvramTemplate) {
+            VIR_WARN("Ignoring NVRAM template for CCA guest '%s' (ROM loader does not support NVRAM)",
+                     def->name);
+            g_clear_pointer(&def->os.loader->nvramTemplate, g_free);
+        }
+    }
+}
+
+
 int
 qemuDomainDefPostParse(virDomainDef *def,
                        unsigned int parseFlags,
@@ -1887,6 +1927,9 @@ qemuDomainDefPostParse(virDomainDef *def,
 
     if (qemuDomainDefBootPostParse(def, driver, parseFlags) < 0)
         return -1;
+
+    /* Convert pflash to ROM for CCA guests after boot post-parse */
+    qemuDomainDefCCAFirmwarePostParse(def);
 
     if (qemuDomainDefAddDefaultDevices(driver, def, qemuCaps) < 0)
         return -1;

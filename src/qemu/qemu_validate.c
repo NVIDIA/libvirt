@@ -1338,11 +1338,13 @@ qemuValidateDomainDef(const virDomainDef *def,
         return -1;
     }
 
-    /* On aarch64, ACPI requires UEFI */
+    /* On aarch64, ACPI requires UEFI (except for CCA guests where UEFI
+     * is loaded via ROM after pflash conversion) */
     if (def->features[VIR_DOMAIN_FEATURE_ACPI] == VIR_TRISTATE_SWITCH_ON &&
         def->os.arch == VIR_ARCH_AARCH64 &&
         (def->os.firmware != VIR_DOMAIN_OS_DEF_FIRMWARE_EFI &&
-         !virDomainDefHasOldStyleUEFI(def))) {
+         !virDomainDefHasOldStyleUEFI(def)) &&
+        !(def->sec && def->sec->sectype == VIR_DOMAIN_LAUNCH_SECURITY_CCA)) {
         virReportError(VIR_ERR_CONFIG_UNSUPPORTED, "%s",
                        _("ACPI requires UEFI on this architecture"));
         return -1;
@@ -1516,6 +1518,24 @@ qemuValidateDomainDef(const virDomainDef *def,
             break;
 
         case VIR_DOMAIN_LAUNCH_SECURITY_CCA:
+            /* CCA firmware must be supplied via -bios (loader type='rom').
+             * The virt machine disables its flash devices for confidential
+             * guests. The post-parse code should have already converted any
+             * pflash configuration to ROM, but verify it here as a sanity check.
+             */
+            if (def->os.loader) {
+                if (def->os.loader->type != VIR_DOMAIN_LOADER_TYPE_ROM) {
+                    virReportError(VIR_ERR_INTERNAL_ERROR, "%s",
+                                   _("Arm CCA guests require a ROM firmware loader (post-parse should have converted pflash)"));
+                    return -1;
+                }
+
+                if (def->os.loader->nvram || def->os.loader->nvramTemplate) {
+                    virReportError(VIR_ERR_INTERNAL_ERROR, "%s",
+                                   _("Arm CCA guests do not support NVRAM flash devices (post-parse should have cleared this)"));
+                    return -1;
+                }
+            }
             break;
 
         case VIR_DOMAIN_LAUNCH_SECURITY_NONE:
