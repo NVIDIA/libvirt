@@ -9813,6 +9813,12 @@ Arm Confidential Compute Architecture software stack:
     ...
   </domain>
 
+Note: Arm CCA guests require firmware to be loaded via ROM (``-bios`` in QEMU) rather
+than pflash devices, as the CCA-enabled virt machine disables flash devices in Realm mode.
+If a ``<loader type='pflash'>`` is specified, libvirt will automatically convert it to
+``type='rom'`` and ignore any ``<nvram>`` configuration. This allows the same domain XML
+to work for both CCA and non-CCA guests by simply toggling the ``<launchSecurity>`` element.
+
 The ``<launchSecurity/>`` element accepts the following attributes:
 
 ``measurement-algo``
