@@ -14365,6 +14365,10 @@ virDomainCCADefParseXML(virDomainCCADef *def,
                                &def->measurement_log) < 0)
         return -1;
 
+    if (virXMLPropTristateBool(ctxt->node, "shared-mec", VIR_XML_PROP_NONE,
+                               &def->shared_mec) < 0)
+        return -1;
+
     return 0;
 }
 
@@ -28155,6 +28159,10 @@ virDomainCCADefFormat(virBuffer *attrBuf,
     if (def->measurement_log != VIR_TRISTATE_BOOL_ABSENT)
         virBufferAsprintf(attrBuf, " measurement-log='%s'",
                           virTristateBoolTypeToString(def->measurement_log));
+
+    if (def->shared_mec != VIR_TRISTATE_BOOL_ABSENT)
+        virBufferAsprintf(attrBuf, " shared-mec='%s'",
+                          virTristateBoolTypeToString(def->shared_mec));
 
     virBufferEscapeString(childBuf, "<measurement-algo>%s</measurement-algo>\n",
                           def->measurement_algo);

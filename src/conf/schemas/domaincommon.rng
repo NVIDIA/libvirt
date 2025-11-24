@@ -3859,6 +3859,11 @@
         </attribute>
       </optional>
       <optional>
+        <attribute name="shared-mec">
+          <ref name="virYesNo"/>
+        </attribute>
+      </optional>
+      <optional>
         <element name="measurement-algo">
           <data type="string"/>
         </element>

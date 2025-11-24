@@ -10287,14 +10287,15 @@ qemuBuildCCACommandLine(virCommand *cmd, virDomainCCADef *cca)
 {
     g_autoptr(virJSONValue) props = NULL;
 
-    VIR_DEBUG("measurement_algorithm=%s personalization_value=%s measurement_log=%d",
+    VIR_DEBUG("measurement_algorithm=%s personalization_value=%s measurement_log=%d shared_mec=%d",
               cca->measurement_algo, cca->personalization_value,
-              cca->measurement_log);
+              cca->measurement_log, cca->shared_mec);
 
     if (qemuMonitorCreateObjectProps(&props, "rme-guest", "rme0",
                                      "S:measurement-algorithm", cca->measurement_algo,
                                      "S:personalization-value", cca->personalization_value,
                                      "T:measurement-log", cca->measurement_log,
+                                     "T:shared-mec", cca->shared_mec,
                                      NULL) < 0)
         return -1;
 
