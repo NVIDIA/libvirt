@@ -9760,7 +9760,7 @@ Arm Confidential Compute Architecture software stack:
 
   <domain>
     ...
-    <launchSecurity type='cca' measurement-log='yes'>
+    <launchSecurity type='cca' measurement-log='yes' shared-mec='yes'>
       <measurement-algo>sha256</measurement-algo>
       <personalization-value>...</personalization-value>
     </launchSecurity>
@@ -9793,6 +9793,14 @@ The ``<launchSecurity/>`` element accepts the following attributes:
    The optional ``measurement-log`` element provides a way to create
    an event log in the format defined by the Trusted Computing Group
    for TPM2.
+
+``shared-mec``
+   The optional ``shared-mec`` attribute configures Memory Encryption Context (MEC)
+   sharing behavior for the Realm.
+   ``yes`` or omitted (default): Realms share encryption contexts for efficiency
+   with reduced isolation. Falls back gracefully to MECID 0 if MEC is unsupported.
+   ``no``: Each Realm gets a dedicated encryption key for strong isolation.
+   Requires kernel and RMM MEC support; will fail to start if MEC is unsupported.
 
 Example configs
 ===============
