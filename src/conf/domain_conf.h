@@ -3037,6 +3037,7 @@ struct _virDomainCCADef {
     char *measurement_algo;
     char *personalization_value;
     virTristateBool measurement_log;
+    virTristateBool shared_mec;
 };
 
 struct _virDomainSecDef {
