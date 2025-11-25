@@ -1,3 +1,10 @@
+libvirt (11.9.0+nvidia2-1) noble; urgency=medium
+
+  * Update vEGM series to match RFCv3.
+  * Update syntax checks to avoid non-functional source code
+
+ -- Nathan Chen <nathanc@nvidia.com>  Thu, 25 Nov 2025 11:46:08 -0800
+
 libvirt (11.9.0+nvidia1-1) noble; urgency=medium
 
   * Update vEGM series to match RFCv2.
