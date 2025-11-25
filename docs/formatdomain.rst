@@ -9011,16 +9011,6 @@ Example: usage of the memory devices
          <size unit='KiB'>16384</size>
        </target>
      </memory>
-     <memory model='egm' access='shared'>
-       <source>
-         <path>/dev/egm0</path>
-       </source>
-       <target>
-         <size unit='KiB'>524288</size>
-         <node>0</node>
-         <pciDev>ua-hostdev0</pciDev>
-       </target>
-     </memory>
    </devices>
    ...
 
@@ -9032,8 +9022,7 @@ Example: usage of the memory devices
    persistent memory device. :since:`Since 7.1.0` Provide ``virtio-mem`` model
    to add paravirtualized memory device. :since:`Since 7.9.0` Provide
    ``sgx-epc`` model to add a SGX enclave page cache (EPC) memory to the guest.
-   :since:`Since 8.10.0 and QEMU 7.0.0` Provide ``egm`` model to add a EGM
-   (Extended GPU Memory) device.
+   :since:`Since 8.10.0 and QEMU 7.0.0`
 
 ``access``
    An optional attribute ``access`` ( :since:`since 3.2.0` ) that provides
@@ -9167,11 +9156,6 @@ Example: usage of the memory devices
      For ``virtio-mem`` and ``virtio-pmem`` only.
      The physical address in memory, where device is mapped.
      :since:`Since 9.4.0`
-
-   ``pciDev``
-     For ``egm`` only.
-     The PCI device that is enabled to access the system memory via
-     association with the EGM device.
 
 
 IOMMU devices
