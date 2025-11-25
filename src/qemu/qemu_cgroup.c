@@ -625,11 +625,6 @@ qemuSetupMemoryDevicesCgroup(virDomainObj *vm,
                                         VIR_CGROUP_DEVICE_RW, false) < 0)
             return -1;
         break;
-    case VIR_DOMAIN_MEMORY_MODEL_EGM:
-        if (qemuCgroupAllowDevicePath(vm, mem->source.egm.path,
-                                      VIR_CGROUP_DEVICE_RW, false) < 0)
-            return -1;
-        break;
     case VIR_DOMAIN_MEMORY_MODEL_NONE:
     case VIR_DOMAIN_MEMORY_MODEL_DIMM:
     case VIR_DOMAIN_MEMORY_MODEL_VIRTIO_MEM:
@@ -666,11 +661,6 @@ qemuTeardownMemoryDevicesCgroup(virDomainObj *vm,
     case VIR_DOMAIN_MEMORY_MODEL_SGX_EPC:
         if (qemuCgroupDenyDevicesPaths(vm, sgxPaths,
                                        VIR_CGROUP_DEVICE_RW, false) < 0)
-            return -1;
-        break;
-    case VIR_DOMAIN_MEMORY_MODEL_EGM:
-        if (qemuCgroupDenyDevicePath(vm, mem->source.egm.path,
-                                     VIR_CGROUP_DEVICE_RWM, false) < 0)
             return -1;
         break;
     case VIR_DOMAIN_MEMORY_MODEL_NONE:
