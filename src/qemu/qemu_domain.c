@@ -8038,8 +8038,6 @@ qemuDomainDefValidateMemoryHotplug(const virDomainDef *def,
     }
 
     for (i = 0; i < def->nmems; i++) {
-        if (def->mems[i]->model == VIR_DOMAIN_MEMORY_MODEL_EGM)
-            continue;
         hotplugMemory += def->mems[i]->size;
 
         switch (def->mems[i]->model) {
