@@ -1522,7 +1522,6 @@ VIR_ENUM_IMPL(virDomainMemoryModel,
               "virtio-pmem",
               "virtio-mem",
               "sgx-epc",
-              "egm",
 );
 
 VIR_ENUM_IMPL(virDomainShmemModel,
@@ -3612,9 +3611,6 @@ void virDomainMemoryDefFree(virDomainMemoryDef *def)
     case VIR_DOMAIN_MEMORY_MODEL_SGX_EPC:
         virBitmapFree(def->source.sgx_epc.nodes);
         break;
-    case VIR_DOMAIN_MEMORY_MODEL_EGM:
-        g_free(def->source.egm.path);
-        g_free(def->target.egm.pciDev);
     case VIR_DOMAIN_MEMORY_MODEL_NONE:
     case VIR_DOMAIN_MEMORY_MODEL_LAST:
         break;
@@ -14065,10 +14061,6 @@ virDomainMemorySourceDefParseXML(xmlNodePtr node,
         }
         break;
 
-    case VIR_DOMAIN_MEMORY_MODEL_EGM:
-        def->source.egm.path = virXPathString("string(./path)", ctxt);
-        break;
-
     case VIR_DOMAIN_MEMORY_MODEL_NONE:
     case VIR_DOMAIN_MEMORY_MODEL_LAST:
         break;
@@ -14143,10 +14135,6 @@ virDomainMemoryTargetDefParseXML(xmlNodePtr node,
     case VIR_DOMAIN_MEMORY_MODEL_VIRTIO_PMEM:
         addrNode = virXPathNode("./address", ctxt);
         addr = &def->target.virtio_pmem.address;
-        break;
-
-    case VIR_DOMAIN_MEMORY_MODEL_EGM:
-        def->target.egm.pciDev = virXPathString("string(./pciDev)", ctxt);
         break;
 
     case VIR_DOMAIN_MEMORY_MODEL_NONE:
@@ -16283,12 +16271,6 @@ virDomainMemoryFindByDefInternal(virDomainDef *def,
                                 mem->source.sgx_epc.nodes))
                 continue;
             break;
-
-        case VIR_DOMAIN_MEMORY_MODEL_EGM:
-            if (STRNEQ(tmp->source.egm.path, mem->source.egm.path))
-                continue;
-            if (STRNEQ(tmp->target.egm.pciDev, mem->target.egm.pciDev))
-                continue;
 
         case VIR_DOMAIN_MEMORY_MODEL_NONE:
         case VIR_DOMAIN_MEMORY_MODEL_LAST:
@@ -22201,7 +22183,6 @@ virDomainMemoryDefCheckABIStability(virDomainMemoryDef *src,
 
     case VIR_DOMAIN_MEMORY_MODEL_DIMM:
     case VIR_DOMAIN_MEMORY_MODEL_SGX_EPC:
-    case VIR_DOMAIN_MEMORY_MODEL_EGM:
     case VIR_DOMAIN_MEMORY_MODEL_NONE:
     case VIR_DOMAIN_MEMORY_MODEL_LAST:
         break;
@@ -26727,10 +26708,6 @@ virDomainMemorySourceDefFormat(virBuffer *buf,
         }
         break;
 
-    case VIR_DOMAIN_MEMORY_MODEL_EGM:
-        virBufferEscapeString(&childBuf, "<path>%s</path>\n", def->source.egm.path);
-        break;
-
     case VIR_DOMAIN_MEMORY_MODEL_NONE:
     case VIR_DOMAIN_MEMORY_MODEL_LAST:
         break;
@@ -26791,11 +26768,6 @@ virDomainMemoryTargetDefFormat(virBuffer *buf,
             virBufferAsprintf(&attrBuf, " dynamicMemslots='%s'",
                               virTristateBoolTypeToString(def->target.virtio_mem.dynamicMemslots));
         }
-        break;
-
-    case VIR_DOMAIN_MEMORY_MODEL_EGM:
-        if (def->target.egm.pciDev)
-            virBufferAsprintf(&childBuf, "<pciDev>%s</pciDev>\n", def->target.egm.pciDev);
         break;
 
     case VIR_DOMAIN_MEMORY_MODEL_SGX_EPC:
