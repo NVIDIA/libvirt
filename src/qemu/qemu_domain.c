@@ -7228,7 +7228,6 @@ qemuDomainUpdateMemoryDeviceInfo(virDomainObj *vm,
             break;
 
         case VIR_DOMAIN_MEMORY_MODEL_SGX_EPC:
-        case VIR_DOMAIN_MEMORY_MODEL_EGM:
         case VIR_DOMAIN_MEMORY_MODEL_NONE:
         case VIR_DOMAIN_MEMORY_MODEL_LAST:
             break;
@@ -7463,8 +7462,7 @@ qemuDomainAlignMemorySizes(virDomainDef *def)
             def->mems[i]->size = VIR_ROUND_UP(def->mems[i]->size, align);
         }
 
-        if (def->mems[i]->model != VIR_DOMAIN_MEMORY_MODEL_EGM)
-            hotplugmem += def->mems[i]->size;
+        hotplugmem += def->mems[i]->size;
 
         if (def->mems[i]->size > maxmemkb) {
             virReportError(VIR_ERR_CONFIG_UNSUPPORTED,
@@ -7952,12 +7950,6 @@ qemuDomainDefValidateMemoryHotplugDevice(const virDomainMemoryDef *mem,
                        virDomainMemoryModelTypeToString(mem->model));
             return -1;
 
-    case VIR_DOMAIN_MEMORY_MODEL_EGM:
-        virReportError(VIR_ERR_CONFIG_UNSUPPORTED,
-                       _("hotplug is not supported for the %1$s device"),
-                       virDomainMemoryModelTypeToString(mem->model));
-            return -1;
-
     case VIR_DOMAIN_MEMORY_MODEL_NONE:
     case VIR_DOMAIN_MEMORY_MODEL_LAST:
         return -1;
@@ -8016,7 +8008,6 @@ qemuDomainDefValidateMemoryHotplug(const virDomainDef *def,
         case VIR_DOMAIN_MEMORY_MODEL_VIRTIO_PMEM:
         case VIR_DOMAIN_MEMORY_MODEL_VIRTIO_MEM:
         case VIR_DOMAIN_MEMORY_MODEL_SGX_EPC:
-        case VIR_DOMAIN_MEMORY_MODEL_EGM:
         case VIR_DOMAIN_MEMORY_MODEL_LAST:
         case VIR_DOMAIN_MEMORY_MODEL_NONE:
             break;
@@ -8066,8 +8057,6 @@ qemuDomainDefValidateMemoryHotplug(const virDomainDef *def,
 
         case VIR_DOMAIN_MEMORY_MODEL_SGX_EPC:
             /* sgx epc memory does not support hotplug, skip this check */
-        case VIR_DOMAIN_MEMORY_MODEL_EGM:
-            /* egm memory does not support hotplug, skip this check */
         case VIR_DOMAIN_MEMORY_MODEL_LAST:
         case VIR_DOMAIN_MEMORY_MODEL_NONE:
             break;
