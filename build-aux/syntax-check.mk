@@ -34,7 +34,7 @@ all:
 
 # Files that should never cause syntax check failures.
 VC_LIST_ALWAYS_EXCLUDE_REGEX = \
-  \.(po|ico|png)$$
+  \.(po|ico|png)$$|^debian/|.github/
 
 # Avoid uses of write(2).  Either switch to streams (fwrite), or use
 # the safewrite wrapper.
