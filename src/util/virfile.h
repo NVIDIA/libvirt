@@ -167,7 +167,7 @@ int virFileReadHeaderQuiet(const char *path, int maxlen, char **buf)
 int virFileReadLimFD(int fd, int maxlen, char **buf)
     G_GNUC_WARN_UNUSED_RESULT ATTRIBUTE_NONNULL(3);
 int virFileReadAll(const char *path, int maxlen, char **buf)
-    G_GNUC_WARN_UNUSED_RESULT ATTRIBUTE_NONNULL(1) ATTRIBUTE_NONNULL(3) ATTRIBUTE_MOCKABLE;
+    G_GNUC_WARN_UNUSED_RESULT ATTRIBUTE_NONNULL(1) ATTRIBUTE_NONNULL(3);
 int virFileReadAllQuiet(const char *path, int maxlen, char **buf)
     G_GNUC_WARN_UNUSED_RESULT ATTRIBUTE_NONNULL(1) ATTRIBUTE_NONNULL(3);
 int virFileReadBufQuiet(const char *file, char *buf, int len)

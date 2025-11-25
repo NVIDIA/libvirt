@@ -44,11 +44,8 @@ virDomainDefPostParseMemory(virDomainDef *def,
         numaMemory = virDomainNumaGetMemorySize(def->numa);
 
     /* calculate the sizes of hotplug memory */
-    for (i = 0; i < def->nmems; i++) {
-        if (def->mems[i]->model == VIR_DOMAIN_MEMORY_MODEL_EGM)
-            continue;
+    for (i = 0; i < def->nmems; i++)
         hotplugMemory += def->mems[i]->size;
-    }
 
     if (numaMemory) {
         /* update the sizes in XML if nothing was set in the XML or ABI update
