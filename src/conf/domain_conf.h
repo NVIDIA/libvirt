@@ -2741,7 +2741,6 @@ typedef enum {
     VIR_DOMAIN_MEMORY_MODEL_VIRTIO_PMEM, /* virtio-pmem memory device */
     VIR_DOMAIN_MEMORY_MODEL_VIRTIO_MEM, /* virtio-mem memory device */
     VIR_DOMAIN_MEMORY_MODEL_SGX_EPC, /* SGX enclave page cache */
-    VIR_DOMAIN_MEMORY_MODEL_EGM, /* Extended GPU memory */
 
     VIR_DOMAIN_MEMORY_MODEL_LAST
 } virDomainMemoryModel;
@@ -2774,9 +2773,6 @@ struct _virDomainMemoryDef {
         struct {
             virBitmap *nodes; /* source NUMA nodes */
         } sgx_epc;
-        struct {
-            char *path;
-        } egm;
     } source;
 
     union {
@@ -2802,9 +2798,6 @@ struct _virDomainMemoryDef {
         } virtio_mem;
         struct {
         } sgx_epc;
-        struct {
-            char *pciDev;
-        } egm;
     } target;
 
     virDomainDeviceInfo info;
