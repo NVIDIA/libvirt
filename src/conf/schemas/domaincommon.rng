@@ -7550,7 +7550,6 @@
           <value>virtio-pmem</value>
           <value>virtio-mem</value>
           <value>sgx-epc</value>
-          <value>egm</value>
         </choice>
       </attribute>
       <optional>
@@ -7680,11 +7679,6 @@
             <attribute name="base">
               <ref name="hexuint"/>
             </attribute>
-          </element>
-        </optional>
-        <optional>
-          <element name="pciDev">
-            <data type="string"/>
           </element>
         </optional>
       </interleave>
