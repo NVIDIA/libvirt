@@ -1,3 +1,9 @@
+libvirt (11.9.0+nvidia3-1) noble; urgency=medium
+
+  * NVIDIA: SAUCE: qemu: Use pci_bus to identify multi-smmuv3 model
+
+ -- Nathan Chen <nathanc@nvidia.com>  Tue, 02 Dec 2025 11:08:48 -0800
+
 libvirt (11.9.0+nvidia2-1) noble; urgency=medium
 
   * Update vEGM series to match RFCv3.
