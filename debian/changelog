@@ -1,3 +1,10 @@
+libvirt (11.9.0+nvidia-unstable3-1) noble; urgency=medium
+
+  * Add format function for CCA launch security
+  * Add shared-mec support for ARM CCA guests
+
+ -- Ian May <ianm@nvidia.com>  Wed, 03 Dec 2025 14:06:44 -0800
+
 libvirt (11.9.0+nvidia-unstable2-1) noble; urgency=medium
 
   * Add initial CCA support.
