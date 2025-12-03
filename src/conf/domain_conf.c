@@ -28662,6 +28662,20 @@ virDomainTDXDefFormat(virBuffer *childBuf, virDomainTDXDef *def)
     }
 }
 
+static void
+virDomainCCADefFormat(virBuffer *attrBuf,
+                      virBuffer *childBuf,
+                      virDomainCCADef *def)
+{
+    if (def->measurement_log != VIR_TRISTATE_BOOL_ABSENT)
+        virBufferAsprintf(attrBuf, " measurement-log='%s'",
+                          virTristateBoolTypeToString(def->measurement_log));
+
+    virBufferEscapeString(childBuf, "<measurement-algo>%s</measurement-algo>\n",
+                          def->measurement_algo);
+    virBufferEscapeString(childBuf, "<personalization-value>%s</personalization-value>\n",
+                          def->personalization_value);
+}
 
 static void
 virDomainSecDefFormat(virBuffer *buf, virDomainSecDef *sec)
@@ -28689,7 +28703,10 @@ virDomainSecDefFormat(virBuffer *buf, virDomainSecDef *sec)
         break;
 
     case VIR_DOMAIN_LAUNCH_SECURITY_PV:
+        break;
+
     case VIR_DOMAIN_LAUNCH_SECURITY_CCA:
+        virDomainCCADefFormat(&attrBuf, &childBuf, &sec->data.cca);
         break;
 
     case VIR_DOMAIN_LAUNCH_SECURITY_NONE:
