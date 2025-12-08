@@ -1446,6 +1446,7 @@ struct virQEMUCapsStringFlags virQEMUCapsObjectTypes[] = {
     { "acpi-generic-initiator", QEMU_CAPS_ACPI_GENERIC_INITIATOR },
     { "rme-guest", QEMU_CAPS_CCA_GUEST },
     { "acpi-egm-memory", QEMU_CAPS_DEVICE_ACPI_EGM_MEMORY },
+  
 };
 
 

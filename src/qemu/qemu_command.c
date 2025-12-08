@@ -3582,6 +3582,7 @@ qemuBuildMemoryDimmBackendStr(virCommand *cmd,
 {
     g_autoptr(virJSONValue) props = NULL;
     g_autoptr(virJSONValue) tcProps = NULL;
+    g_autoptr(virJSONValue) egmProps = NULL;
     virBitmap *nodemask = NULL;
     g_autofree char *alias = NULL;
     unsigned long long originalSize = 0;
@@ -3648,6 +3649,33 @@ qemuBuildMemoryDimmBackendStr(virCommand *cmd,
 
         if (mem->target.egm.pciDev)
            virBufferAsprintf(&buf, ",pci-dev=%s", mem->target.egm.pciDev);
+
+        if (mem->targetNode >= 0)
+            virBufferAsprintf(&buf, ",node=%d", mem->targetNode);
+
+        egmObjStr = virBufferContentAndReset(&buf);
+
+        virCommandAddArgList(cmd, "-object", egmObjStr, NULL);
+    }
+
+    if (mem->model == VIR_DOMAIN_MEMORY_MODEL_EGM) {
+        g_autofree char *egmId = NULL;
+        g_autofree char *egmObjStr = NULL;
+        g_auto(virBuffer) buf = VIR_BUFFER_INITIALIZER;
+        const char *basename = NULL;
+
+        /* Extract basename from host path under /dev/ */
+        basename = strrchr(mem->source.egm.path, '/');
+        if (basename && *(basename + 1)) {
+            egmId = g_strdup(basename + 1);
+        } else {
+            egmId = g_strdup(mem->source.egm.path);
+        }
+
+        virBufferAsprintf(&buf, "acpi-egm-memory,id=%s", egmId);
+
+        if (mem->target.egm.pciDev)
+            virBufferAsprintf(&buf, ",pci-dev=%s", mem->target.egm.pciDev);
 
         if (mem->targetNode >= 0)
             virBufferAsprintf(&buf, ",node=%d", mem->targetNode);
