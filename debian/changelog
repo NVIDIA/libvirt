@@ -1,3 +1,11 @@
+libvirt (11.9.0+nvidia-unstable4-1) noble; urgency=medium
+
+  * Update vEGM series to match RFCv3.
+  * Update syntax checks to avoid non-functional source code
+  * NVIDIA: SAUCE: qemu: Use pci_bus to identify multi-smmuv3 model
+
+ -- Nathan Chen <nathanc@nvidia.com>  Mon, 08 Dec 2025 11:52:59 -0800
+
 libvirt (11.9.0+nvidia-unstable3-1) noble; urgency=medium
 
   * Add format function for CCA launch security
