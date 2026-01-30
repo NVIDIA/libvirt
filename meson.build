@@ -673,6 +673,7 @@ headers = [
   'ifaddrs.h',
   'libtasn1.h',
   'linux/kvm.h',
+  'linux/iommufd.h',
   'mntent.h',
   'net/ethernet.h',
   'net/if.h',
