@@ -1,3 +1,9 @@
+libvirt (11.9.0+nvidia4-1) noble; urgency=medium
+
+  * util: Fix max socket calculation
+
+ -- Nathan Chen <nathanc@nvidia.com>  Tue, 03 Feb 2026 21:57:12 -0800
+
 libvirt (11.9.0+nvidia3-1) noble; urgency=medium
 
   * NVIDIA: SAUCE: qemu: Use pci_bus to identify multi-smmuv3 model
