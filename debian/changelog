@@ -1,3 +1,9 @@
+libvirt (11.9.0+nvidia-unstable5-1) noble; urgency=medium
+
+  * util: Fix max socket calculation
+
+ -- Nathan Chen <nathanc@nvidia.com>  Tue, 10 Feb 2026 11:32:06 -0800
+
 libvirt (11.9.0+nvidia-unstable4-1) noble; urgency=medium
 
   * Update vEGM series to match RFCv3.
