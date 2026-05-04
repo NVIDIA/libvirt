@@ -1503,7 +1503,26 @@ qemuFirmwareMatchDomain(const virDomainDef *def,
             break;
 
         case VIR_DOMAIN_LAUNCH_SECURITY_PV:
+            break;
+
         case VIR_DOMAIN_LAUNCH_SECURITY_CCA:
+            /*
+             * qemuDomainDefCCAFirmwarePostParse() converts the pflash loader
+             * to ROM and strips NVRAM. A Secure-Boot-enabled descriptor
+             * depends on NVRAM-backed UEFI variables, so silently picking
+             * one here would produce a configuration the user did not
+             * request and that is unlikely to boot.
+             */
+            if (supportsSecureBoot) {
+                VIR_DEBUG("Domain is a CCA realm, firmware '%s' supports Secure Boot",
+                          path);
+                return false;
+            }
+            if (hasEnrolledKeys) {
+                VIR_DEBUG("Domain is a CCA realm, firmware '%s' has enrolled keys",
+                          path);
+                return false;
+            }
             break;
 
         case VIR_DOMAIN_LAUNCH_SECURITY_NONE:
@@ -2061,6 +2080,21 @@ qemuFirmwareFillDomain(virQEMUDriver *driver,
      * related to the loader was provided, then we're using the
      * default built-in firmware and we can stop here */
     if (!autoSelection && !loader)
+        return 0;
+
+    /* For CCA guests, qemuDomainDefCCAFirmwarePostParse converts the
+     * pflash loader to ROM after the first-pass firmware match has
+     * already filled in the loader path. On the second call from
+     * VM startup the loader is already ROM-typed; skip re-matching
+     * to avoid rejecting the (correctly-resolved) loader against
+     * flash-mapped JSON descriptors. Require loader->path so we
+     * don't silently succeed with an unresolved firmware - that
+     * path would later be passed to qemu as a NULL -bios argument. */
+    if (loader &&
+        loader->type == VIR_DOMAIN_LOADER_TYPE_ROM &&
+        loader->path &&
+        def->sec &&
+        def->sec->sectype == VIR_DOMAIN_LAUNCH_SECURITY_CCA)
         return 0;
 
     /* Look for the information we need in firmware descriptors */
