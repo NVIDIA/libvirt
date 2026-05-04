@@ -6680,14 +6680,15 @@ qemuMonitorJSONGetCCAMeasurementAlgo(qemuMonitor *mon,
     if (qemuMonitorJSONCommand(mon, cmd, &reply) < 0)
         return -1;
 
-    /* If the 'query-cca-capabilities' QMP command was not available
-     * we simply successfully return zero capabilities.
-     * This is the current QEMU (=9.1.91) and all non-ARM architectures */
-    if (qemuMonitorJSONHasError(reply, "CommandNotFound"))
+    /* The 'query-cca-capabilities' command can fail for several reasons:
+     *  - It doesn't exist (older QEMU, or non-ARM architectures)
+     *  - It exists but RME is not enabled in the host kernel
+     *  - Other runtime conditions where CCA is unavailable
+     * In all of these cases the QEMU binary itself is still usable for
+     * non-CCA workloads, so report zero capabilities and let the caller
+     * clear QEMU_CAPS_CCA_GUEST rather than aborting the whole probe. */
+    if (virJSONValueObjectHasKey(reply, "error"))
         return 0;
-
-    if (qemuMonitorJSONCheckError(cmd, reply) < 0)
-        return -1;
 
     caps = virJSONValueObjectGetObject(reply, "return");
 
