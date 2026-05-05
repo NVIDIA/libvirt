@@ -1,3 +1,10 @@
+libvirt (11.9.0+nvidia-unstable6-1) noble; urgency=medium
+
+  * qemu: don't abort capability probe when CCA query fails at runtime
+  * qemu: make firmware autoselection work for CCA realms
+
+ -- Ian May <ianm@nvidia.com>  Tue, 05 May 2026 12:00:00 -0500
+
 libvirt (11.9.0+nvidia-unstable5-1) noble; urgency=medium
 
   * util: Fix max socket calculation
