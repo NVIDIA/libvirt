@@ -6315,6 +6315,8 @@ qemuBuildPCINestedSmmuv3DevProps(const virDomainDef *def,
 {
     g_autoptr(virJSONValue) props = NULL;
     g_autofree char *bus = NULL;
+    g_autofree char *ssidsizeStr = NULL;
+    g_autofree char *oasStr = NULL;
     virPCIDeviceAddress addr = { .bus = iommu->pci_bus };
 
     bus = qemuBuildDeviceAddressPCIGetBus(def, &addr);
@@ -6325,10 +6327,23 @@ qemuBuildPCINestedSmmuv3DevProps(const virDomainDef *def,
         return NULL;
     }
 
+    if (iommu->ssid_size >= 0) {
+        ssidsizeStr = g_strdup_printf("%u", iommu->ssid_size);
+    }
+
+    if (iommu->oas >= 0) {
+        oasStr = g_strdup_printf("%u", iommu->oas);
+    }
+
     if (virJSONValueObjectAdd(&props,
                               "s:driver", "arm-smmuv3",
                               "s:primary-bus", bus,
                               "s:id", iommu->info.alias,
+                              "B:accel", (iommu->accel == VIR_TRISTATE_SWITCH_ON),
+                              "S:ats", iommu->ats == VIR_TRISTATE_SWITCH_ON ? "on" : iommu->ats == VIR_TRISTATE_SWITCH_OFF ? "off" : NULL,
+                              "S:ril", iommu->ril == VIR_TRISTATE_SWITCH_ON ? "on" : iommu->ril == VIR_TRISTATE_SWITCH_OFF ? "off" : NULL,
+                              "S:ssidsize", ssidsizeStr,
+                              "S:oas", oasStr,
                               NULL) < 0)
         return NULL;
 
